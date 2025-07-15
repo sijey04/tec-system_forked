@@ -1,7 +1,5 @@
 import random
 import string
-import requests
-import json
 from datetime import datetime, timedelta
 from django.utils import timezone
 from django.conf import settings
@@ -35,73 +33,87 @@ def save_otp(email):
     return otp
 
 def send_otp_email(email, otp):
-    """Send OTP via MailerSend API using requests"""
+    """Send OTP via Django's built-in email system with Gmail SMTP"""
     try:
-        url = "https://api.mailersend.com/v1/email"
+        from django.core.mail import send_mail
         
-        headers = {
-            "Content-Type": "application/json",
-            "X-Requested-With": "XMLHttpRequest",
-            "Authorization": f"Bearer {settings.MAILERSEND_API_KEY}"
-        }
+        subject = "TEC Registration - Email Verification Code"
         
-        data = {
-            "from": {
-                "email": settings.MAILERSEND_DEFAULT_FROM,
-                "name": settings.MAILERSEND_DEFAULT_FROM_NAME
-            },
-            "to": [
-                {
-                    "email": email,
-                    "name": email.split('@')[0]
-                }
-            ],
-            "subject": "Your OTP Verification Code",
-            "text": f"""
+        # HTML email template
+        html_message = f"""
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h2 style="color: #dc2626; margin-bottom: 10px;">TEC Registration System</h2>
+                <h3 style="color: #333; margin-top: 0;">Email Verification</h3>
+            </div>
+            
+            <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <p style="margin-bottom: 15px; color: #555;">Hello,</p>
+                <p style="margin-bottom: 15px; color: #555;">You have requested to register for the TEC (Testing and Evaluation Center) system.</p>
+                
+                <div style="text-align: center; margin: 25px 0;">
+                    <p style="margin-bottom: 10px; color: #333; font-weight: bold;">Your verification code is:</p>
+                    <div style="background-color: #dc2626; color: white; padding: 15px 25px; border-radius: 8px; font-size: 32px; font-weight: bold; letter-spacing: 8px; display: inline-block;">
+                        {otp}
+                    </div>
+                </div>
+                
+                <p style="margin-bottom: 15px; color: #555;">This code will expire in <strong>10 minutes</strong>.</p>
+                <p style="margin-bottom: 15px; color: #555;">If you did not request this code, please ignore this email.</p>
+            </div>
+            
+            <div style="text-align: center; padding: 20px 0; border-top: 1px solid #eee;">
+                <p style="color: #888; font-size: 14px; margin: 0;">
+                    Best regards,<br/>
+                    <strong>TEC Registration Team</strong><br/>
+                    Western Mindanao State University
+                </p>
+            </div>
+        </div>
+        """
+        
+        # Plain text version
+        text_message = f"""
+TEC Registration System - Email Verification
+
 Hello,
 
-Your OTP verification code is: {otp}
+You have requested to register for the TEC (Testing and Evaluation Center) system.
+
+Your verification code is: {otp}
 
 This code will expire in 10 minutes.
 
 If you did not request this code, please ignore this email.
 
-Thank you,
-{settings.MAILERSEND_DEFAULT_FROM_NAME}
-            """,
-            "html": f"""
-<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-    <h2 style="color: #333;">Your Verification Code</h2>
-    <p>Hello,</p>
-    <p>Your OTP verification code is:</p>
-    <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; text-align: center; font-size: 24px; letter-spacing: 5px; font-weight: bold;">
-        {otp}
-    </div>
-    <p>This code will expire in 10 minutes.</p>
-    <p>If you did not request this code, please ignore this email.</p>
-    <p>Thank you,<br/>{settings.MAILERSEND_DEFAULT_FROM_NAME}</p>
-</div>
-            """
-        }
+Best regards,
+TEC Registration Team
+Western Mindanao State University
+        """
         
         print(f"Sending email to {email} with OTP {otp}")
-        print(f"Using sender: {settings.MAILERSEND_DEFAULT_FROM}")
+        print(f"Using Gmail SMTP: {settings.EMAIL_HOST_USER}")
+        print(f"From email: {settings.DEFAULT_FROM_EMAIL}")
         
-        # Make the API request
-        response = requests.post(url, headers=headers, json=data)
+        # Send the email using Django's send_mail with Gmail SMTP
+        result = send_mail(
+            subject=subject,
+            message=text_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[email],
+            html_message=html_message,
+            fail_silently=False,
+        )
         
-        print(f"MailerSend API response: {response.status_code}")
-        print(f"Response body: {response.text}")
-        
-        if response.status_code >= 200 and response.status_code < 300:
-            print("Email sent successfully!")
+        if result == 1:
+            print("Email sent successfully via Gmail SMTP!")
             return True
         else:
-            print(f"Error sending email: {response.status_code} - {response.text}")
+            print("Failed to send email via Gmail SMTP")
             return False
-    
+            
     except Exception as e:
-        print(f"Exception sending email: {str(e)}")
+        print(f"Exception sending email via Gmail SMTP: {str(e)}")
         return False
 
 def verify_otp(email, otp):
