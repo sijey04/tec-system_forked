@@ -28,6 +28,11 @@ export const adminRoutes = [
         component: () => import('../views/admin/pages/AppointmentDetails.vue'),
         props: true
       },
+      {
+        path: 'list-of-takers',
+        name: 'AdminListOfTakers',
+        component: () => import('../views/admin/pages/ListOfTakers.vue')
+      },
      
       {
         path: 'program',

@@ -3089,3 +3089,69 @@ def manual_match_score(request):
         return Response({
             'error': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_list_of_takers(request):
+    """Get list of approved test takers grouped by program"""
+    try:
+        # Check if user is admin
+        if not request.user.is_staff and not request.user.is_superuser:
+            return Response({
+                'error': 'Only admin users can access this endpoint'
+            }, status=status.HTTP_403_FORBIDDEN)
+        
+        # Get query parameters for filtering
+        program_id = request.query_params.get('program_id', None)
+        test_session_id = request.query_params.get('test_session_id', None)
+        search = request.query_params.get('search', '')
+        
+        # Filter appointments with status 'approved'
+        queryset = Appointment.objects.filter(status='approved')
+        
+        # Apply program filter if provided
+        if program_id:
+            queryset = queryset.filter(program_id=program_id)
+        
+        # Apply test session filter if provided
+        if test_session_id:
+            queryset = queryset.filter(test_session_id=test_session_id)
+        
+        # Apply search filter
+        if search:
+            queryset = queryset.filter(
+                Q(full_name__icontains=search) |
+                Q(first_name__icontains=search) |
+                Q(last_name__icontains=search) |
+                Q(email__icontains=search) |
+                Q(school_name__icontains=search)
+            )
+        
+        # Order by program and name
+        queryset = queryset.select_related('program', 'test_session', 'test_center', 'test_room').order_by('program__name', 'last_name', 'first_name')
+        
+        # Serialize the data
+        serializer = AppointmentSerializer(queryset, many=True)
+        
+        # Get statistics
+        stats = {
+            'total_takers': queryset.count(),
+            'by_program': list(queryset.values('program__name', 'program__id').annotate(
+                count=Count('id')
+            ).order_by('-count')),
+            'by_test_session': list(queryset.values('test_session__exam_date', 'test_session__id').annotate(
+                count=Count('id')
+            ).exclude(test_session__isnull=True).order_by('-test_session__exam_date'))
+        }
+        
+        return Response({
+            'success': True,
+            'takers': serializer.data,
+            'stats': stats
+        })
+        
+    except Exception as e:
+        return Response({
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

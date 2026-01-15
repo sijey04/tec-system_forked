@@ -110,13 +110,13 @@
             @click="handleButtonClick"
             class="w-full font-semibold text-sm py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
             :class="[
-              isRestricted || isExamDatePast || registrationStatus === 'closed'
+              (isRestricted || isExamDatePast || registrationStatus === 'closed') && !(isScheduled && !hasClaimedAppointment)
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
                 : isScheduled && !hasClaimedAppointment
                   ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white' 
                   : 'bg-gradient-to-r from-crimson-600 to-crimson-700 hover:from-crimson-700 hover:to-crimson-800 text-white'
             ]"
-            :disabled="isRestricted || isExamDatePast || registrationStatus === 'closed'"
+            :disabled="(isRestricted || isExamDatePast || registrationStatus === 'closed') && !(isScheduled && !hasClaimedAppointment)"
             :title="getButtonTitle()"
           >
             <i :class="['mr-2 text-xs', isScheduled && !hasClaimedAppointment ? 'fas fa-hourglass-half' : 'fas fa-calendar-check']"></i>
@@ -474,11 +474,7 @@ export default {
       this.showRequirements = !this.showRequirements
     },
     handleButtonClick() {
-      // Prevent action if restricted, exam date is past, or registration is closed
-      if (this.isRestricted || this.isExamDatePast || this.registrationStatus === 'closed') {
-        return;
-      }
-      
+      // Allow scheduled users to check status even if registration hasn't started
       if (this.isScheduled && !this.hasClaimedAppointment) {
         const latestAppointmentId = Array.isArray(this.appointmentId) 
           ? this.appointmentId[this.appointmentId.length - 1] 
@@ -488,21 +484,28 @@ export default {
           program: this.program,
           appointmentId: String(latestAppointmentId)
         });
+        return;
+      }
+      
+      // Prevent action if restricted, exam date is past, or registration is closed (for new registrations)
+      if (this.isRestricted || this.isExamDatePast || this.registrationStatus === 'closed' || this.registrationStatus === 'not_started') {
+        return;
+      }
+      
+      // Handle new registrations
+      const isRescheduling = this.$route.query.reschedule === 'true';
+      const originalAppointmentId = this.$route.query.appointmentId;
+      
+      if (isRescheduling && originalAppointmentId) {
+        this.$emit('schedule', {
+          program: this.program,
+          reschedulingInfo: {
+            isRescheduling: true,
+            originalAppointmentId: originalAppointmentId
+          }
+        });
       } else {
-        const isRescheduling = this.$route.query.reschedule === 'true';
-        const originalAppointmentId = this.$route.query.appointmentId;
-        
-        if (isRescheduling && originalAppointmentId) {
-          this.$emit('schedule', {
-            program: this.program,
-            reschedulingInfo: {
-              isRescheduling: true,
-              originalAppointmentId: originalAppointmentId
-            }
-          });
-        } else {
-          this.$emit('schedule', this.program);
-        }
+        this.$emit('schedule', this.program);
       }
     },
     formatDate(dateString) {
@@ -524,19 +527,23 @@ export default {
       }
     },
     getButtonText() {
+      // Check if user is already scheduled first - they should always be able to check status
+      if (this.isScheduled && !this.hasClaimedAppointment) return 'Check Status';
+      // Then check restrictions for new registrations
       if (this.isRestricted && this.restrictionReason.includes('must schedule and complete')) return 'Requires CET';
       if (this.isExamDatePast) return 'Exam Ended';
       if (this.registrationStatus === 'closed') return 'Registration Closed';
       if (this.registrationStatus === 'not_started') return 'Registration Soon';
-      if (this.isScheduled && !this.hasClaimedAppointment) return 'Check Status';
       return 'Schedule Now';
     },
     getButtonTitle() {
+      // Check if user is already scheduled first - they should always be able to check status
+      if (this.isScheduled && !this.hasClaimedAppointment) return 'Check your appointment status';
+      // Then check restrictions for new registrations
       if (this.isRestricted) return this.restrictionReason;
       if (this.isExamDatePast) return 'This exam has already taken place';
       if (this.registrationStatus === 'closed') return 'Registration period has ended';
       if (this.registrationStatus === 'not_started') return 'Registration has not started yet';
-      if (this.isScheduled && !this.hasClaimedAppointment) return 'Check your appointment status';
       return 'Schedule an appointment';
     }
   }

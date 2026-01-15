@@ -209,6 +209,11 @@ export default {
         icon: 'fas fa-calendar' 
       },
       { 
+        name: 'List of Takers', 
+        path: '/admin/list-of-takers', 
+        icon: 'fas fa-users' 
+      },
+      { 
         name: 'Programs', 
         path: '/admin/program', 
         icon: 'fas fa-book' 

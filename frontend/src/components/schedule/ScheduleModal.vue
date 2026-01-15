@@ -1714,6 +1714,9 @@ export default {
     const showNotification = ref(false); // Track notification display state
     const notificationMessage = ref(''); // Notification message content
     const notificationType = ref('info'); // Notification type (info, warning, error, success)
+    
+    // Debounced auto-save timer for form draft persistence
+    let autoSaveTimeout = null;
 
     const validationErrors = ref({
       lastName: '',
@@ -2993,6 +2996,65 @@ export default {
       }
     };
     
+    // Helper function to get the localStorage key for draft data
+    const getDraftStorageKey = () => {
+      const programId = props.program?.id || 'default';
+      return `scheduleModal_draft_${programId}`;
+    };
+
+    // Save draft form data to localStorage
+    const saveDraftFormData = () => {
+      try {
+        const draftData = {
+          formData: JSON.parse(JSON.stringify(formData.value)),
+          locationData: JSON.parse(JSON.stringify(locationData.value)),
+          currentStep: currentStep.value,
+          touchedFields: JSON.parse(JSON.stringify(touchedFields.value)),
+          savedAt: new Date().toISOString()
+        };
+        localStorage.setItem(getDraftStorageKey(), JSON.stringify(draftData));
+        console.log('Draft form data saved for program:', props.program?.id);
+      } catch (e) {
+        console.error('Error saving draft form data:', e);
+      }
+    };
+
+    // Load draft form data from localStorage
+    const loadDraftFormData = () => {
+      try {
+        const savedDraft = localStorage.getItem(getDraftStorageKey());
+        if (savedDraft) {
+          const draftData = JSON.parse(savedDraft);
+          // Check if draft is less than 24 hours old
+          const savedAt = new Date(draftData.savedAt);
+          const now = new Date();
+          const hoursDiff = (now - savedAt) / (1000 * 60 * 60);
+          
+          if (hoursDiff < 24) {
+            return draftData;
+          } else {
+            // Draft is too old, clear it
+            clearDraftFormData();
+            return null;
+          }
+        }
+        return null;
+      } catch (e) {
+        console.error('Error loading draft form data:', e);
+        return null;
+      }
+    };
+
+    // Clear draft form data from localStorage
+    const clearDraftFormData = () => {
+      try {
+        localStorage.removeItem(getDraftStorageKey());
+        console.log('Draft form data cleared for program:', props.program?.id);
+      } catch (e) {
+        console.error('Error clearing draft form data:', e);
+      }
+    };
+
     // Watch for modal open/close
     watch(() => props.modelValue, (newVal) => {
       if (newVal && props.program?.id) {
@@ -3010,7 +3072,37 @@ export default {
         
         console.log('Current user data:', currentUser);
         
-        // Parse name data from user info
+        // Check if there's saved draft data for this program
+        const savedDraft = loadDraftFormData();
+        
+        if (savedDraft && savedDraft.formData) {
+          console.log('Restoring saved draft data');
+          // Restore form data from draft
+          formData.value = savedDraft.formData;
+          // Ensure email is always current user's email
+          formData.value.email = userEmail;
+          
+          // Restore location data
+          if (savedDraft.locationData) {
+            locationData.value = savedDraft.locationData;
+          }
+          
+          // Restore current step
+          if (savedDraft.currentStep) {
+            currentStep.value = savedDraft.currentStep;
+          }
+          
+          // Restore touched fields
+          if (savedDraft.touchedFields) {
+            Object.keys(savedDraft.touchedFields).forEach(key => {
+              touchedFields.value[key] = savedDraft.touchedFields[key];
+            });
+          }
+          
+          return; // Skip default initialization since we restored from draft
+        }
+        
+        // Parse name data from user info (only if no draft was restored)
         let firstName = '';
         let lastName = '';
         let middleName = '';
@@ -3181,9 +3273,13 @@ export default {
       }
     });
     
-    // Clean up event listeners when component is unmounted or modal closes
+    // Clean up event listeners and timers when component is unmounted or modal closes
     onUnmounted(() => {
       document.removeEventListener('click', handleClickOutside);
+      // Clear auto-save timeout
+      if (autoSaveTimeout) {
+        clearTimeout(autoSaveTimeout);
+      }
     });
     
     // Add debugging on mount
@@ -3286,6 +3382,41 @@ export default {
         formData.value.schoolName = formData.value.college.schoolName;
       }
     });
+    
+    // Auto-save form data when changes are made (with debounce to avoid too frequent saves)
+    watch(
+      () => formData.value,
+      () => {
+        // Only auto-save if the modal is open
+        if (props.modelValue) {
+          // Clear existing timeout
+          if (autoSaveTimeout) {
+            clearTimeout(autoSaveTimeout);
+          }
+          // Set a new timeout to save after 1 second of no changes
+          autoSaveTimeout = setTimeout(() => {
+            saveDraftFormData();
+          }, 1000);
+        }
+      },
+      { deep: true }
+    );
+    
+    // Also auto-save when location data changes
+    watch(
+      () => locationData.value,
+      () => {
+        if (props.modelValue) {
+          if (autoSaveTimeout) {
+            clearTimeout(autoSaveTimeout);
+          }
+          autoSaveTimeout = setTimeout(() => {
+            saveDraftFormData();
+          }, 1000);
+        }
+      },
+      { deep: true }
+    );
     
     // Format date for display
     const formatDate = (dateString) => {
@@ -3835,6 +3966,9 @@ export default {
 
         ApplicationFormStore.setHasSubmittedData(true);
         
+        // Clear draft data after successful submission
+        clearDraftFormData();
+        
         const emitData = {
           fullName: `${formData.value.lastName}, ${formData.value.firstName} ${formData.value.middleName} ${formData.value.suffix}`.trim().replace(/\s+/g, ' '),
           contactNumber: formData.value.contactNumber,
@@ -3877,6 +4011,8 @@ export default {
     
     // Close modal
     const close = () => {
+      // Save draft data before closing (so user doesn't lose their progress)
+      saveDraftFormData();
       emit('update:modelValue', false);
     };
     
@@ -3920,6 +4056,8 @@ export default {
       if (validateCurrentStep()) {
         if (currentStep.value < 5) {
           currentStep.value++;
+          // Save draft when moving to next step
+          saveDraftFormData();
         }
       }
     };
@@ -3927,6 +4065,8 @@ export default {
     const prevStep = () => {
       if (currentStep.value > 1) {
         currentStep.value--;
+        // Save draft when going back
+        saveDraftFormData();
       }
     };
 
@@ -4243,7 +4383,12 @@ export default {
       fetchTestSessions,
       fetchUserAppointments,
       fetchUserProfile,
-      formatDateForApi
+      formatDateForApi,
+      
+      // Draft data management
+      saveDraftFormData,
+      loadDraftFormData,
+      clearDraftFormData
     };
   }
 }

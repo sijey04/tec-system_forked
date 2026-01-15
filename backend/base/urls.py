@@ -14,7 +14,8 @@ from .views import (
     search_public_exam_scores, get_public_test_sessions, get_reports_statistics,
     test_reports_api, NotificationViewSet, create_test_notification,
     test_gmail_notification, test_bulk_gmail_notification,
-    get_unmatched_scores, get_candidate_appointments, manual_match_score
+    get_unmatched_scores, get_candidate_appointments, manual_match_score,
+    get_list_of_takers
 )
 from .date_availability_view import program_availability
 from .auth_views import (
@@ -133,4 +134,7 @@ urlpatterns = [
     path('unmatched-scores/', get_unmatched_scores, name='get_unmatched_scores'),
     path('candidate-appointments/', get_candidate_appointments, name='get_candidate_appointments'),
     path('manual-match-score/', manual_match_score, name='manual_match_score'),
+    
+    # List of takers endpoint
+    path('admin/list-of-takers/', get_list_of_takers, name='get_list_of_takers'),
 ]
