@@ -1,470 +1,77 @@
 <template>
   <div class="bg-gray-100 py-8 min-h-screen" :class="{ 'py-0': popupMode, 'hidden-for-pdf-generation': outputPdfOnly }">
     <div class="form-container mx-auto shadow print:shadow-none" ref="formContainer">
-  
-      <div class="text-wmsu top-section">
-        <!-- Header Row -->
-        <div class="flex justify-between items-start mb-4">
-          <!-- Left Section -->
-          <div class="w-1/4 flex">
-            <div class="pr-1 w-40">
-              <!-- Form ID and Instructions -->
-              <div class="flex justify-center items-center">
-                <div class="relative">
-                  <img src="@/assets/images/Screenshot 2025-04-03 151538.png" alt="Certification Logos" class="h-32">
-                </div>
-              </div>
-            </div>
-          </div>
-            
-          <!-- University Info -->
-          <div class="text-center">
-            <div class="flex items-center">
-              <div class="w-full">
-                <p class="text-[13px] font-bold mt-4 mr-15">Western Mindanao State University</p>
-                <p class="text-[20px] font-bold text-wmsu mt-1 mb-1 mr-15">TESTING AND EVALUATION CENTER</p>
-                <p class="text-[12px] mb-2 mr-15">Zamboanga City</p>
-              </div>
-            </div>
-            
-            <p class="text-[16px] font-bold mb-0 mr-15 text-wmsu">WMSU-CET APPLICATION FORM</p>
-            <p class="text-[17px] font-bold mt-0 mr-15">for School Year {{ schoolYear }}</p>
-          </div>
+      <div class="form-bg-wrap">
+        <img
+          src="@/assets/images/CET Application Form_page-0001.jpg"
+          alt="WMSU CET Application Form"
+          class="form-bg"
+        >
+        <div class="form-overlay">
+          <span class="field field-name field-tight">{{ form.name ? form.name.toUpperCase() : '' }}</span>
+          <span class="field field-birth-month">{{ form.birthMonth ? String(form.birthMonth).toUpperCase() : '' }}</span>
+          <span class="field field-birth-day">{{ form.birthDay ? String(form.birthDay).toUpperCase() : '' }}</span>
+          <span class="field field-birth-year">{{ form.birthYear ? String(form.birthYear).toUpperCase() : '' }}</span>
 
-          <div class="mt-4 w-1/5">
-            <img src="../assets/images/wmsu_cert.png" class="max-w-full">
-          </div>
-          
-          <!-- Right Side: FREE and Photo Box -->
-          <div class="w-1/4 text-right flex flex-col items-end">
-            <p class="text-[9px] mr-1 mb-0">THIS FORM IS FOR <span class="font-bold text-[12px]">FREE</span></p>
-            <div class="flex">
-              <div class="mb-2">
-              </div>
-              <div class="photo-box flex items-center ml-50">
-                <div class="flex items-center justify-center">
-                  <img src="../assets/images/profile.png" class="w-[2in] h-[2in]">
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Name and Personal Info -->
-        <div class="mb-1">
-          <div class="flex items-center text-[10px]">
-            <p class="font-bold underline mr-1">NAME:</p>
-            <div class="field-line flex-1">
-              <div class="pdf-friendly-input">
-                <span class="input-text">{{ form.name ? form.name.toUpperCase() : '' }}</span>
-              </div>
-            </div>
-            <p class="ml-1">Date of Birth:</p>
-            <div class="border border-wmsu w-8 h-5 mx-0.5 text-center">
-              <div class="pdf-friendly-input">
-                <span class="input-text">{{ form.birthMonth ? String(form.birthMonth).toUpperCase() : '' }}</span>
-              </div>
-            </div>
-            <div class="border border-wmsu w-8 h-5 mx-0.5 text-center">
-              <div class="pdf-friendly-input">
-                <span class="input-text">{{ form.birthDay ? String(form.birthDay).toUpperCase() : '' }}</span>
-              </div>
-            </div>
-            <div class="border border-wmsu w-10 h-5 mx-0.5 text-center">
-              <div class="pdf-friendly-input">
-                <span class="input-text">{{ form.birthYear ? String(form.birthYear).toUpperCase() : '' }}</span>
-              </div>
-            </div>
-          </div>
-          
-          <div class="flex ml-10 text-[8px] italic">
-            <span>(Pls. PRINT)</span>
-            <span class="ml-10">Family Name,</span>
-            <span class="ml-10">First Name</span>
-            <span class="ml-10">Middle Name</span>
-          </div>
-          
-          <!-- Sex, Age and Home Address -->
-          <div class="flex items-center text-[10px] mt-2">
-            <p>Sex assigned at birth:</p>
-            <span class="flex items-center ml-1">
-              <input v-model="form.sex" type="radio" value="male" class="mr-1 mt-2 accent-wmsu">
-              Male
-            </span>
-            <span class="flex items-center ml-1">
-              <input v-model="form.sex" type="radio" value="female" class="mr-2  mt-2 accent-wmsu">
-              Female
-            </span>
-            <span class="ml-2">Age:</span>
-            <div class="flex">
-              <div class="border border-wmsu w-8 h-5 text-center mt-1 ml-1">
-                <div class="pdf-friendly-input">
-                  <span class="input-text">{{ form.age ? form.age.toString().toUpperCase() : '' }}</span>
-                </div>
-              </div>
-            </div>
-            <span class="ml-2">Home Address:</span>
-            <div class="field-line flex-1 ml-1">
-              <div class="pdf-friendly-input">
-                <span class="input-text">{{ form.address ? form.address.toUpperCase() : '' }}</span>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Citizenship, Contact, Email -->
-          <div class="flex items-center text-[10px] mt-2">
-            <p>Citizenship:</p>
-            <div class="field-line w-28 mx-1">
-              <div class="pdf-friendly-input">
-                <span class="input-text">{{ form.citizenship ? form.citizenship.toUpperCase() : '' }}</span>
-              </div>
-            </div>
-            <p>Contact No.:</p>
-            <div class="field-line w-28 mx-1">
-              <div class="pdf-friendly-input">
-                <span class="input-text">{{ form.contactNumber ? String(form.contactNumber).toUpperCase() : '' }}</span>
-              </div>
-            </div>
-            <p>Email Address:</p>
-            <div class="field-line flex-1 ml-1">
-              <div class="pdf-friendly-input">
-                <span class="input-text">{{ form.email ? form.email.toUpperCase() : '' }}</span>
-              </div>
-            </div>
-          </div>
-          
-          <!-- WMSUCET question -->
-          <div class="mt-2">
-            <table class="w-full">
-              <tbody>
-              <tr>
-                <td class="w-1/2">
-                  <p class="text-[10px] font-bold uppercase text-wmsu">IS THIS YOUR FIRST TIME TO TAKE THE WMSUCET?</p>
-                </td>
-                <td class="w-1/2 pl-4">
-                  <p class="text-[10px] text-wmsu">If No, how many times have you already taken it?</p>
-                </td>
-                <td class="pl-4">
-                  <div class="field-line w-full mt-1">
-                    <div class="pdf-friendly-input">
-                      <span class="input-text">{{ form.timesTaken ? String(form.timesTaken).toUpperCase() : '' }}</span>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <div class="flex items-center ml-4">
-                    <input v-model="form.isFirstTime" type="radio" value="yes" class="accent-wmsu mr-1 mt-2">
-                    <span class="font-bold text-wmsu mr-5 text-[10px]">YES</span>
-                    <input v-model="form.isFirstTime" type="radio" value="no" class="accent-wmsu mr-1 mt-2">
-                    <span class="font-bold text-wmsu text-[10px]">NO</span>
-                  </div>
-                </td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        
-        <!-- Type of Applicant -->
-        <div class="mb-2">
-          <p class="text-[10px] font-bold uppercase mb-0">
-            <span class="underline">TYPE OF APPLICANT</span>:
-          </p>
-          
-          <!-- Dynamic Applicant Fields Based on Type -->
-          <div v-if="form.applicantType || form.schoolName" class="mt-2">
-            <!-- Title based on applicant type -->
-            <p class="font-bold uppercase mb-2 text-[10px]">
-              {{ getApplicantTypeTitle(form.applicantType) }}
-            </p>
-            
-            <!-- School Name Field -->
-            <div class="flex mt-1">
-              <p class="text-[10px]">{{ getSchoolLabel() }}</p>
-              <div class="field-line flex-1 mx-1">
-                <div class="pdf-friendly-input">
-                  <span class="input-text">{{ form.schoolName ? form.schoolName.toUpperCase() : '' }}</span>
-                </div>
-              </div>
-              <!-- Graduation Date or Course field based on type -->
-              <p class="text-[10px]">{{ getSecondaryLabel() }}</p>
-              <div class="field-line w-28 ml-1">
-                <div class="pdf-friendly-input">
-                  <span class="input-text">{{ form.applicantType === 'college_student' ? (form.course ? form.course.toUpperCase() : '') : (form.graduationDate ? form.graduationDate.toUpperCase() : '') }}</span>
-                </div>
-              </div>
-            </div>
-            
-            <!-- School Address Field -->
-            <div class="flex items-center">
-              <p class="text-[10px]">School Address:</p>
-              <div class="field-line flex-1 ml-1">
-                <div class="pdf-friendly-input">
-                  <span class="input-text">{{ form.schoolAddress ? form.schoolAddress.toUpperCase() : '' }}</span>
-                </div>
-              </div>
-            </div>
-            <p class="text-[8px] italic text-right">(Write in full, do not abbreviate)</p>
-          
-          </div>
-        </div>
-        
-        <!-- Test Information Table -->
-        <div class="mb-2 section-spacing">
-          <p class="text-[9px] italic text-center mb-1">To be filled out by person authorized to receive and/or process application</p>
-          
-          <table class="w-full mt-0 border-collapse border border-wmsu text-center table-spacing">
-            <tbody>
-            <tr class="text-wmsu text-[9px] font-bold">
-              <td class="table-cell border border-wmsu py-1">Test Date</td>
-              <td class="table-cell border border-wmsu py-1">Test Center</td>
-              <td class="table-cell border border-wmsu py-1">Room No.</td>
-              <td class="table-cell border border-wmsu py-1">Test Time</td>
-              <td class="table-cell border border-wmsu py-1">
-                <div>Test Center</div>
-                <div class="text-[8px]">Code</div>
-              </td>
-              <td class="table-cell border border-wmsu py-1">
-                <div>High School</div>
-                <div class="text-[8px]">Code</div>
-              </td>
-            </tr>
-            <tr>
-              <td class="table-cell border border-wmsu h-11">
-                <div class="pdf-friendly-input">
-                  <span class="input-text">{{ appointmentInfo.test_date ? formatAppointmentDate(appointmentInfo.test_date).toUpperCase() : ((appointmentInfo.date) ? formatAppointmentDate(appointmentInfo.date).toUpperCase() : 'TO BE ASSIGNED') }}</span>
-                </div>
-              </td>
-              <td class="table-cell border border-wmsu">
-                <div class="pdf-friendly-input">
-                  <span class="input-text">{{ appointmentInfo.test_center ? appointmentInfo.test_center.toUpperCase() : 'TO BE ASSIGNED' }}</span>
-                </div>
-              </td>
-              <td class="table-cell border border-wmsu">
-                <div class="pdf-friendly-input">
-                  <span class="input-text">{{ (appointmentInfo.room_number ? (String(appointmentInfo.room_number) + (appointmentInfo.room_code ? ' ' + String(appointmentInfo.room_code) : '')).toUpperCase() : 'TO BE ASSIGNED') }}</span>
-                </div>
-              </td>
-              <td class="table-cell border border-wmsu">
-                <div class="pdf-friendly-input">
-                  <span class="input-text">{{ appointmentInfo.time_slot ? formatTimeSlot(appointmentInfo.time_slot).toUpperCase() : 'TO BE ASSIGNED' }}</span>
-                </div>
-              </td>
-              <td class="table-cell border border-wmsu">
-                <div class="pdf-friendly-input">
-                  <span class="input-text">{{ appointmentInfo.test_center_code ? String(appointmentInfo.test_center_code).toUpperCase() : 'TO BE ASSIGNED' }}</span>
-                </div>
-              </td>
-              <td class="table-cell border border-wmsu">
-                <div class="pdf-friendly-input">
-                  <span class="input-text">{{ form.highSchoolCode ? String(form.highSchoolCode).toUpperCase() : 'NOT PROVIDED' }}</span>
-                </div>
-              </td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
-        
-        <!-- Signature Lines -->
-        <div class="flex justify-between mb-2 text-[9px]">
-          <div class="w-1/3 mt-8 mb-6">
-            <div class="border-t border-wmsu pt-0 text-center mt-6 mx-10">
-              <p class="mb-0">School's Official Contact Person</p>
-              <p class="mt-0">(Print Name & Signature)</p>
-            </div>
-          </div>
-          
-          <div class="w-1/3 mx-16 mt-14 text-center">
-            <div class="border-t border-wmsu pt-0">
-              <p>TEC Registration Officer</p>
-            </div>
-          </div>
-          
-          <div class="w-1/3 text-right mt-12">
-            <p class="font-bold text-[11px]">TEST CENTER COPY</p>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Perforated Line -->
-      <div class="relative">
-        <div class="dashed-line w-full"></div>
-        <div class="absolute -right-1 top-1/2 transform -translate-y-1/2 text-xs text-wmsu">▶</div>
-        <div class="absolute -left-1 top-1/2 transform -translate-y-1/2 text-xs text-wmsu">◀</div>
-      </div>
-      
-      <!-- Bottom Part - Test Permit Section -->
-      <div class="text-wmsu relative bottom-section mt-4">
-        <!-- Side Tab -->
-      
-        
-        <!-- Main Content -->
-        <div class="ml-6">
-          <div class="flex justify-between items-start mb-1">
-            <div class="w-full">
-              <div class="flex items-start">
-                <div class="flex-grow">
-                  <div class="flex justify-between w-full">
-                    <p class="font-bold text-[10px]">WMSU-TEC-FR-002.04</p>
-                    <p class="font-bold text-[13px]">TEST PERMIT-WMSU CET SY {{ schoolYear }}</p>
-                  </div>
-                  <p class="text-[8px] italic">Effective Date: 19-Aug-2024</p>
-                  
-                  <div class="mt-2 w-full">
-                    <div class="flex w-full items-center">
-                      <p class="font-bold text-[10px] mr-1 whitespace-nowrap">NAME:</p>
-                      <div class="border-b border-wmsu flex-grow">
-                        <div class="pdf-friendly-input">
-                          <span class="input-text">{{ form.name ? form.name.toUpperCase() : '' }}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <p class="text-[8px] italic">(Pls. PRINT) Family Name, First Name, Middle Name</p>
-                  </div>
-                  
-                  <div class="mt-2 w-full">
-                    <div class="flex w-full items-center">
-                      <p class="text-[10px] mr-1 whitespace-nowrap">School:</p>
-                      <div class="border-b border-wmsu flex-grow ">
-                        <div class="pdf-friendly-input">
-                          <span class="input-text">{{ form.schoolName ? form.schoolName.toUpperCase() : '' }}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Test Information -->
-          <div class="mb-2 section-spacing mt-3">
-            <p class="text-[8px] italic mb-1 flex text-center justify-center">To be filled out by person authorized to receive and/or process application</p>
-            
-            <table class="w-full border-collapse border border-wmsu text-center mt-0 table-spacing">
-              <tbody>
-              <tr class="text-wmsu text-[9px] font-bold">
-                <td class="table-cell border border-wmsu py-1">Test Date</td>
-                <td class="table-cell border border-wmsu py-1">Test Center</td>
-                <td class="table-cell border border-wmsu py-1">Room No.</td>
-                <td class="table-cell border border-wmsu py-1">Test Time</td>
-                <td class="table-cell border border-wmsu py-1">
-                  <div>Test Center</div>
-                  <div class="text-[8px]">Code</div>
-                </td>
-                <td class="table-cell border border-wmsu py-1">
-                  <div>High School</div>
-                  <div class="text-[8px]">Code</div>
-                </td>
-              </tr>
-              <tr>
-                <td class="table-cell border border-wmsu h-11">
-                  <div class="pdf-friendly-input">
-                    <span class="input-text">{{ appointmentInfo.test_date ? formatAppointmentDate(appointmentInfo.test_date).toUpperCase() : ((appointmentInfo.date) ? formatAppointmentDate(appointmentInfo.date).toUpperCase() : 'TO BE ASSIGNED') }}</span>
-                  </div>
-                </td>
-                <td class="table-cell border border-wmsu">
-                  <div class="pdf-friendly-input">
-                    <span class="input-text">{{ appointmentInfo.test_center ? appointmentInfo.test_center.toUpperCase() : 'TO BE ASSIGNED' }}</span>
-                  </div>
-                </td>
-                <td class="table-cell border border-wmsu">
-                  <div class="pdf-friendly-input">
-                    <span class="input-text">{{ (appointmentInfo.room_number ? (String(appointmentInfo.room_number) + (appointmentInfo.room_code ? ' ' + String(appointmentInfo.room_code) : '')).toUpperCase() : 'TO BE ASSIGNED') }}</span>
-                  </div>
-                </td>
-                <td class="table-cell border border-wmsu">
-                  <div class="pdf-friendly-input">
-                    <span class="input-text">{{ appointmentInfo.time_slot ? formatTimeSlot(appointmentInfo.time_slot).toUpperCase() : 'TO BE ASSIGNED' }}</span>
-                  </div>
-                </td>
-                <td class="table-cell border border-wmsu">
-                  <div class="pdf-friendly-input">
-                    <span class="input-text">{{ appointmentInfo.test_center_code ? String(appointmentInfo.test_center_code).toUpperCase() : 'TO BE ASSIGNED' }}</span>
-                  </div>
-                </td>
-                <td class="table-cell border border-wmsu">
-                  <div class="pdf-friendly-input">
-                    <span class="input-text">{{ form.highSchoolCode ? String(form.highSchoolCode).toUpperCase() : 'NOT PROVIDED' }}</span>
-                  </div>
-                </td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
-          
-          <!-- Bottom Section -->
-          <div class="flex justify-between text-[10px]">
-            <!-- Left Side -->
-            <div class="w-1/4">
-              <div class="text-center mt-12">
-                <div class="border-t border-wmsu pt-0 text-center mt-6 mx-10">
-                  <p class="mb-0">School's Official Contact Person</p>
-                  <p class="mt-0">(Print Name & Signature)</p>
-                </div>
-              </div>
-              
-              <div class="mt-10 text-center">
-                <div class="border-t border-wmsu pt-0">
-                  <p class="mb-0">School's Contact Person / TEC Reg. Officer</p>
-                  <p class="text-[8px] mt-0">Print Name & Signature</p>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Middle - Student Type Checkboxes -->
-            <div class="w-2/5 mt-8">
-              <div class="font-bold text-center mb-1">STUDENT TYPE (check one)</div>
-              <div class="ml-3">
-                <div class="flex items-center mt-1">
-                  <input type="checkbox" :checked="form.applicantType === 'senior_high_student'" disabled class="w-3 h-3 mr-1 mt-0 accent-wmsu">
-                  <p :class="{'font-bold': form.applicantType === 'senior_high_student'}">Senior High School graduating student</p>
-                </div>
-                <div class="flex items-center mt-1">
-                  <input type="checkbox" :checked="form.applicantType === 'senior_high_graduate'" disabled class="w-3 h-3 mr-1 mt-0 accent-wmsu">
-                  <p :class="{'font-bold': form.applicantType === 'senior_high_graduate'}">Senior High School graduate (has not enrolled in College)</p>
-                </div>
-                <div class="flex items-center mt-2">
-                  <input type="checkbox" :checked="form.applicantType === 'college_student' && form.collegeType === 'wmsu_main'" disabled class="w-3 h-3 mr-1 accent-wmsu">
-                  <p :class="{'font-bold': form.applicantType === 'college_student' && form.collegeType === 'wmsu_main'}">College, WMSU Main Campus (currently enrolled)</p>
-                </div>
-                <div class="flex items-center mt-1">
-                  <input type="checkbox" :checked="form.applicantType === 'college_student' && form.collegeType === 'wmsu_external'" disabled class="w-3 h-3 mr-1 accent-wmsu">
-                  <p :class="{'font-bold': form.applicantType === 'college_student' && form.collegeType === 'wmsu_external'}">College, WMSU External Studies Unit</p>
-                </div>
-                <div class="flex items-center mt-1">
-                  <input type="checkbox" :checked="form.applicantType === 'college_student' && form.collegeType === 'non_wmsu'" disabled class="w-3 h-3 mr-1 accent-wmsu">
-                  <p :class="{'font-bold': form.applicantType === 'college_student' && form.collegeType === 'non_wmsu'}">College, Non-WMSU (Transferee)</p>
-                </div>
-              </div>
-              
-              <!-- IMPORTANT Section -->
-              <div class="mt-3 w-full text-center">
-                <div class="bg-red-100 py-1 border border-wmsu">
-                  <p class="font-bold text-[11px]">IMPORTANT</p>
-                </div>
-                <p class="text-[8px] mt-0">Read reminder at the back of this form</p>
-              </div>
-            </div>
-            
-            <!-- Right - Photo Box -->
-            <div class="w-1/4 text-center flex flex-col items-end">
-              <div class="photo-box flex items-center">
-                <div class="flex items-center justify-center">
-                  <img src="../assets/images/profile.png" class="w-[2in] h-[2in]">
-                </div>
-              </div>
-            </div>
-          </div>
+          <span class="check check-sex-male">{{ form.sex === 'male' ? 'X' : '' }}</span>
+          <span class="check check-sex-female">{{ form.sex === 'female' ? 'X' : '' }}</span>
+
+          <span class="field field-age">{{ form.age ? form.age.toString().toUpperCase() : '' }}</span>
+          <span class="field field-address field-tight">{{ form.address ? form.address.toUpperCase() : '' }}</span>
+          <span class="field field-citizenship field-tight">{{ form.citizenship ? form.citizenship.toUpperCase() : '' }}</span>
+          <span class="field field-contact field-tight">{{ form.contactNumber ? String(form.contactNumber).toUpperCase() : '' }}</span>
+          <span class="field field-email field-tight">{{ form.email ? form.email.toUpperCase() : '' }}</span>
+
+          <span class="check check-first-yes">{{ form.isFirstTime === 'yes' ? 'X' : '' }}</span>
+          <span class="check check-first-no">{{ form.isFirstTime === 'no' ? 'X' : '' }}</span>
+          <span class="field field-times-taken">{{ form.timesTaken ? String(form.timesTaken).toUpperCase() : '' }}</span>
+
+          <span class="check check-app-shs">{{ form.applicantType === 'senior_high_student' ? 'X' : '' }}</span>
+          <span class="field field-shs-school field-tight">{{ form.applicantType === 'senior_high_student' ? (form.schoolName ? form.schoolName.toUpperCase() : '') : '' }}</span>
+          <span class="field field-shs-grad">{{ form.applicantType === 'senior_high_student' ? (form.graduationDate ? form.graduationDate.toUpperCase() : '') : '' }}</span>
+          <span class="field field-shs-address field-tight">{{ form.applicantType === 'senior_high_student' ? (form.schoolAddress ? form.schoolAddress.toUpperCase() : '') : '' }}</span>
+
+          <span class="check check-app-shg">{{ form.applicantType === 'senior_high_graduate' ? 'X' : '' }}</span>
+          <span class="field field-shg-school field-tight">{{ form.applicantType === 'senior_high_graduate' ? (form.schoolName ? form.schoolName.toUpperCase() : '') : '' }}</span>
+          <span class="field field-shg-grad">{{ form.applicantType === 'senior_high_graduate' ? (form.graduationDate ? form.graduationDate.toUpperCase() : '') : '' }}</span>
+          <span class="field field-shg-address field-tight">{{ form.applicantType === 'senior_high_graduate' ? (form.schoolAddress ? form.schoolAddress.toUpperCase() : '') : '' }}</span>
+
+          <span class="check check-app-college">{{ form.applicantType === 'college_student' ? 'X' : '' }}</span>
+          <span class="field field-college-school field-tight">{{ form.applicantType === 'college_student' ? (form.schoolName ? form.schoolName.toUpperCase() : '') : '' }}</span>
+          <span class="field field-college-course field-tight">{{ form.applicantType === 'college_student' ? (form.course ? form.course.toUpperCase() : '') : '' }}</span>
+          <span class="field field-college-address field-tight">{{ form.applicantType === 'college_student' ? (form.schoolAddress ? form.schoolAddress.toUpperCase() : '') : '' }}</span>
+
+          <span class="field field-test-date field-tight">{{ appointmentInfo.test_date ? formatAppointmentDate(appointmentInfo.test_date).toUpperCase() : ((appointmentInfo.date) ? formatAppointmentDate(appointmentInfo.date).toUpperCase() : 'TO BE ASSIGNED') }}</span>
+          <span class="field field-test-center field-tight">{{ appointmentInfo.test_center ? appointmentInfo.test_center.toUpperCase() : 'TO BE ASSIGNED' }}</span>
+          <span class="field field-room field-tight">{{ (appointmentInfo.room_number ? (String(appointmentInfo.room_number) + (appointmentInfo.room_code ? ' ' + String(appointmentInfo.room_code) : '')).toUpperCase() : 'TO BE ASSIGNED') }}</span>
+          <span class="field field-time field-tight">{{ appointmentInfo.time_slot ? formatTimeSlot(appointmentInfo.time_slot).toUpperCase() : 'TO BE ASSIGNED' }}</span>
+          <span class="field field-center-code field-tight">{{ appointmentInfo.test_center_code ? String(appointmentInfo.test_center_code).toUpperCase() : 'TO BE ASSIGNED' }}</span>
+          <span class="field field-hs-code field-tight">{{ form.highSchoolCode ? String(form.highSchoolCode).toUpperCase() : 'NOT PROVIDED' }}</span>
+
+          <div class="photo photo-top"></div>
+
+          <span class="field field-permit-name field-tight">{{ form.name ? form.name.toUpperCase() : '' }}</span>
+          <span class="field field-permit-school field-tight">{{ form.schoolName ? form.schoolName.toUpperCase() : '' }}</span>
+
+          <span class="field field-permit-test-date field-tight">{{ appointmentInfo.test_date ? formatAppointmentDate(appointmentInfo.test_date).toUpperCase() : ((appointmentInfo.date) ? formatAppointmentDate(appointmentInfo.date).toUpperCase() : 'TO BE ASSIGNED') }}</span>
+          <span class="field field-permit-test-center field-tight">{{ appointmentInfo.test_center ? appointmentInfo.test_center.toUpperCase() : 'TO BE ASSIGNED' }}</span>
+          <span class="field field-permit-room field-tight">{{ (appointmentInfo.room_number ? (String(appointmentInfo.room_number) + (appointmentInfo.room_code ? ' ' + String(appointmentInfo.room_code) : '')).toUpperCase() : 'TO BE ASSIGNED') }}</span>
+          <span class="field field-permit-time field-tight">{{ appointmentInfo.time_slot ? formatTimeSlot(appointmentInfo.time_slot).toUpperCase() : 'TO BE ASSIGNED' }}</span>
+          <span class="field field-permit-center-code field-tight">{{ appointmentInfo.test_center_code ? String(appointmentInfo.test_center_code).toUpperCase() : 'TO BE ASSIGNED' }}</span>
+          <span class="field field-permit-hs-code field-tight">{{ form.highSchoolCode ? String(form.highSchoolCode).toUpperCase() : 'NOT PROVIDED' }}</span>
+
+          <span class="check check-student-shs">{{ form.applicantType === 'senior_high_student' ? 'X' : '' }}</span>
+          <span class="check check-student-shg">{{ form.applicantType === 'senior_high_graduate' ? 'X' : '' }}</span>
+          <span class="check check-student-wmsu-main">{{ form.applicantType === 'college_student' && form.collegeType === 'wmsu_main' ? 'X' : '' }}</span>
+          <span class="check check-student-wmsu-external">{{ form.applicantType === 'college_student' && form.collegeType === 'wmsu_external' ? 'X' : '' }}</span>
+          <span class="check check-student-non-wmsu">{{ form.applicantType === 'college_student' && form.collegeType === 'non_wmsu' ? 'X' : '' }}</span>
+
+          <div class="photo photo-bottom"></div>
         </div>
       </div>
     </div>
     
-    <!-- Action Buttons -->
     <div v-if="!outputPdfOnly" class="flex justify-center mt-4 print:hidden" :class="{ 'flex-col space-y-2 px-4': popupMode && isMobileView }">
-      <!-- When not in popup mode, show all buttons -->
       <template v-if="!popupMode">
         <button @click="printForm" class="bg-wmsu text-white px-6 py-2 rounded-lg mr-2 hover:bg-red-700 transition">Print Form</button>
         <button @click="downloadPDF" class="bg-green-600 text-white px-6 py-2 rounded-lg mr-2 hover:bg-green-700 transition">Download PDF</button>
@@ -482,7 +89,6 @@
         </button>
       </template>
       
-      <!-- When in popup mode, only show Download PDF button -->
       <template v-else>
         <div :class="{ 'w-full flex justify-center': isMobileView }">
           <button @click="downloadPDF" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition" :class="{ 'w-full max-w-xs': isMobileView }">
@@ -490,14 +96,12 @@
         </button>
         </div>
         
-        <!-- Add refresh test details button in popup mode if we're missing test details -->
         <button v-if="!hasTestDetails" @click="fetchTestDetails(appointmentInfo.id)" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition" :class="{ 'mt-2 ml-0': isMobileView, 'ml-2': !isMobileView }">
           <i class="fas fa-sync-alt mr-2"></i>Refresh Test Details
         </button>
       </template>
     </div>
     
-    <!-- Debug Modal (only if not in popup mode and not outputPdfOnly) -->
     <div v-if="debugModalVisible && !popupMode && !outputPdfOnly" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 print:hidden">
       <div class="bg-white rounded-lg shadow-lg p-6 max-w-3xl w-full max-h-[80vh] overflow-auto">
         <h3 class="text-lg font-bold mb-4">Test Details Debug Information</h3>
@@ -613,10 +217,41 @@ const formContainer = ref(null)
 const isMobileView = ref(false)
 const debugModalVisible = ref(false)
 
-// ... (other existing refs and reactive objects: schoolYear, appointmentInfo, form, etc.)
 const schoolYear = ref('2025-2026');
-const appointmentInfo = reactive({ /* ... */ });
-const form = reactive({ /* ... */ });
+const appointmentInfo = reactive({
+  id: '',
+  test_date: '',
+  test_center: '',
+  test_center_code: '',
+  room_number: '',
+  room_code: '',
+  time_slot: '',
+  exam_type: '',
+  date: '',
+  forceUpdate: 0
+});
+
+const form = reactive({
+  name: '',
+  birthMonth: '',
+  birthDay: '',
+  birthYear: '',
+  sex: '',
+  age: '',
+  address: '',
+  citizenship: '',
+  contactNumber: '',
+  email: '',
+  highSchoolCode: '',
+  schoolName: '',
+  schoolAddress: '',
+  graduationDate: '',
+  course: '',
+  collegeType: '',
+  isFirstTime: 'yes',
+  timesTaken: '',
+  applicantType: ''
+});
 const hasTestDetails = computed(() => !!(appointmentInfo.test_date && appointmentInfo.test_center && appointmentInfo.room_number));
 const formData = computed(() => (props.popupMode || props.outputPdfOnly) ? props.appointmentData : ApplicationFormStore.state.formData)
 const hasSubmittedData = computed(() => (props.popupMode || props.outputPdfOnly) ? true : ApplicationFormStore.state.hasSubmittedData)
@@ -637,22 +272,10 @@ const loadFormData = () => {
     }
 
     if (props.outputPdfOnly) {
-      console.log('[ApplicationForm outputPdfOnly] Received testFormData (props.appointmentData) for School Info:',
-        'applicantType:', testFormData.applicantType,
-        'schoolName (top-level):', testFormData.schoolName, 
-        'seniorGraduating:', testFormData.seniorGraduating,
-        'seniorGraduate:', testFormData.seniorGraduate,
-        'college:', testFormData.college
-      );
-      console.log('[ApplicationForm outputPdfOnly] Received testFormData (props.appointmentData) for WMSUCET Experience:',
-        'wmsucetExperience:', testFormData.wmsucetExperience
-      );
-      console.log('[ApplicationForm outputPdfOnly] Received testFormData (props.appointmentData) for High School Code:',
-        'highSchoolCode:', testFormData.highSchoolCode
-      );
-      console.log('[ApplicationForm outputPdfOnly] Received RAW applicantType from props:', testFormData.applicantType);
+      console.log('[ApplicationForm outputPdfOnly] Received testFormData:', testFormData);
     }
     
+    // Personal Information
     form.name = testFormData.fullName || '';
     form.birthMonth = testFormData.birthMonth || '';
     form.birthDay = testFormData.birthDay || '';
@@ -664,54 +287,36 @@ const loadFormData = () => {
     form.contactNumber = testFormData.contactNumber || '';
     form.email = testFormData.email || '';
     
-    if (props.outputPdfOnly) {
-      console.log('[ApplicationForm outputPdfOnly] Populated form object:',
-        'form.email:', form.email,
-        'form.address:', form.address
-      );
-    }
-
-    if (testFormData.appointmentId) {
-      const appointmentId = parseInt(testFormData.appointmentId, 10) || testFormData.appointmentId;
+    // Appointment / Test Info
+    if (testFormData.appointmentId || testFormData.id) {
+      const appointmentId = testFormData.appointmentId || testFormData.id;
       appointmentInfo.id = appointmentId;
-      appointmentInfo.programName = testFormData.programName;
-      appointmentInfo.date = testFormData.preferredDate;
+      appointmentInfo.date = testFormData.preferredDate || testFormData.preferred_date;
       
-      if (props.popupMode || props.outputPdfOnly) {
-        if (testFormData.test_date) appointmentInfo.test_date = testFormData.test_date;
-        if (testFormData.test_center) appointmentInfo.test_center = testFormData.test_center;
-        if (testFormData.test_center_code) appointmentInfo.test_center_code = testFormData.test_center_code;
-        if (testFormData.room_number) appointmentInfo.room_number = testFormData.room_number;
-        if (testFormData.room_code) appointmentInfo.room_code = testFormData.room_code;
-        if (testFormData.exam_type) appointmentInfo.exam_type = testFormData.exam_type;
-        
-        if (testFormData.timeSlot) {
-            appointmentInfo.time_slot = testFormData.timeSlot;
-            appointmentInfo.timeSlot = testFormData.timeSlot;
-            appointmentInfo.reporting_time = testFormData.timeSlot === 'morning' ? '7:30 AM' : '12:30 PM';
-        } else {
-            appointmentInfo.time_slot = null;
-            appointmentInfo.timeSlot = null;
-            appointmentInfo.reporting_time = '';
-        }
-        appointmentInfo.forceUpdate = Date.now();
-      }
+      // Map test details from props if available
+      if (testFormData.test_date) appointmentInfo.test_date = testFormData.test_date;
+      if (testFormData.test_center) appointmentInfo.test_center = testFormData.test_center;
+      if (testFormData.test_center_code) appointmentInfo.test_center_code = testFormData.test_center_code;
+      if (testFormData.room_number) appointmentInfo.room_number = testFormData.room_number;
+      if (testFormData.room_code) appointmentInfo.room_code = testFormData.room_code;
+      if (testFormData.exam_type) appointmentInfo.exam_type = testFormData.exam_type;
       
-      if (props.outputPdfOnly) {
-        console.log('[ApplicationForm outputPdfOnly] Populated appointmentInfo object:',
-          'appointmentInfo.test_date:', appointmentInfo.test_date,
-          'appointmentInfo.test_center:', appointmentInfo.test_center,
-          'appointmentInfo.test_center_code:', appointmentInfo.test_center_code,
-          'appointmentInfo.room_number:', appointmentInfo.room_number,
-          'appointmentInfo.room_code:', appointmentInfo.room_code,
-          'appointmentInfo.time_slot:', appointmentInfo.time_slot
-        );
+      // Fallback for test_date if it's missing but we have session info
+      if (!appointmentInfo.test_date && testFormData.test_session_exam_date) {
+        appointmentInfo.test_date = testFormData.test_session_exam_date;
       }
 
+      if (testFormData.timeSlot || testFormData.time_slot) {
+        const slot = testFormData.timeSlot || testFormData.time_slot;
+        appointmentInfo.time_slot = slot;
+        appointmentInfo.reporting_time = slot === 'morning' ? '7:30 AM' : '12:30 PM';
+      }
+
+      // If in interactive mode and details are missing, fetch them
       if (!props.outputPdfOnly) {
-      setTimeout(() => {
-        fetchTestDetails(appointmentId);
-      }, 500);
+        setTimeout(() => {
+          fetchTestDetails(appointmentId);
+        }, 500);
       }
     }
 
@@ -834,16 +439,53 @@ const downloadPDF = () => {
   });
 }
 
-// ... (other existing methods: printForm, resetForm, formatters, fetchTestDetails, etc.)
 const printForm = () => window.print();
-const fetchTestDetails = async (id) => { /* ... */ };
+const fetchTestDetails = async (id) => {
+  if (!id) return;
+  try {
+    const response = await axiosInstance.get(`/api/appointments/${id}/test-details/`);
+    const data = response.data;
+    
+    // Process test details - handle nested structure
+    const testSession = data.test_session || (data.test_details && data.test_details.session);
+    const testCenter = data.test_center || (data.test_details && data.test_details.center);
+    const testRoom = data.test_room || (data.test_details && data.test_details.room);
+
+    if (testSession) {
+      appointmentInfo.test_date = testSession.exam_date || testSession.date;
+      appointmentInfo.exam_type = testSession.exam_type || testSession.name;
+    }
+    
+    if (testCenter) {
+      appointmentInfo.test_center = testCenter.name || testCenter.center_name;
+      appointmentInfo.test_center_code = testCenter.code || testCenter.id;
+    }
+    
+    if (testRoom) {
+      // Logic for room_number (similar to AppointmentStatus.vue)
+      if (testRoom.name && testRoom.room_code && testRoom.name !== testRoom.room_code && !testRoom.name.includes(`Room ${testRoom.room_code}`)) {
+        appointmentInfo.room_number = testRoom.name;
+      } else if (testRoom.name && testRoom.name === testRoom.room_code) {
+        appointmentInfo.room_number = `Room ${testRoom.room_code}`;
+      } else if (testRoom.room_code) {
+        appointmentInfo.room_number = `Room ${testRoom.room_code}`;
+      } else {
+        appointmentInfo.room_number = testRoom.name || "Room";
+      }
+      appointmentInfo.room_code = testRoom.room_code;
+    }
+
+    appointmentInfo.forceUpdate = Date.now();
+  } catch (error) {
+    console.warn('Error fetching test details for ApplicationForm:', error);
+  }
+};
 const formatAppointmentDate = (dateString) => {
-  if (!dateString) return ''; // Return empty string if input is falsy
+  if (!dateString) return ''; 
   try {
     const date = new Date(dateString);
-    // Check if date is valid
     if (isNaN(date.getTime())) {
-      return ''; // Return empty string for invalid dates
+      return ''; 
     }
     return date.toLocaleDateString('en-US', { 
       year: 'numeric', 
@@ -852,17 +494,17 @@ const formatAppointmentDate = (dateString) => {
     });
   } catch (e) {
     console.warn('Error formatting date:', dateString, e);
-    return ''; // Return empty string on error
+    return ''; 
   }
 }
 const formatTimeSlot = (slot) => {
-  if (!slot) return ''; // Ensure empty string for falsy input
+  if (!slot) return ''; 
   if (slot === 'morning') {
     return 'Morning (8:00 AM - 12:00 PM)';
   } else if (slot === 'afternoon') {
     return 'Afternoon (1:00 PM - 5:00 PM)';
   }
-  return slot.toString(); // Ensure it's a string if not morning/afternoon
+  return slot.toString(); 
 }
 const getApplicantTypeTitle = (type) => {
   if (props.outputPdfOnly) {
@@ -880,7 +522,7 @@ const getApplicantTypeTitle = (type) => {
       title = 'COLLEGE STUDENT';
       break;
     default:
-      title = ''; // Explicitly empty for default
+      title = ''; 
   }
   if (props.outputPdfOnly) {
     console.log('[ApplicationForm outputPdfOnly] getApplicantTypeTitle returning:', title);
@@ -905,17 +547,14 @@ onMounted(async () => {
 
   if ((props.popupMode || props.outputPdfOnly) && props.appointmentData) {
     loadFormData();
-  } else if (!props.outputPdfOnly) { // Only do complex loading if not in outputPdfOnly mode
-    // ... (existing onMounted logic for non-popup, non-outputPdfOnly mode) ...
+  } else if (!props.outputPdfOnly) { 
     const routeAppointmentId = route.params.appointmentId;
     if (routeAppointmentId) { /* ... */ }
-    // ... (localStorage checks, fetchLatestAppointment, etc.) ...
-    loadFormData(); // ensure it is called after potential data fetch
+    loadFormData(); 
   }
 
-  // If in outputPdfOnly mode and startDownload is already true (e.g. if data was passed immediately)
   if (props.outputPdfOnly && props.startDownload && props.appointmentData) {
-     await nextTick(); // Ensure DOM is updated with data
+     await nextTick(); 
      if (formContainer.value) {
         downloadPDF();
     } else {
@@ -931,11 +570,10 @@ watch(() => props.startDownload, async (newValue) => {
         emit('pdf-generation-complete', { success: false, error: 'No data' });
     return;
   }
-    // Ensure data is loaded if it wasn't already on mount
-    if (!form.name) { // Heuristic: if form.name is empty, data probably not loaded
+    if (!form.name) { 
       loadFormData();
     }
-    await nextTick(); // Wait for DOM updates after loadFormData if it was called
+    await nextTick(); 
     if (formContainer.value) {
       downloadPDF();
     } else {
@@ -945,19 +583,16 @@ watch(() => props.startDownload, async (newValue) => {
   }
 });
 
-// Watch for appointmentData changes if in outputPdfOnly mode, to reload form data
 watch(() => props.appointmentData, (newData) => {
     if (props.outputPdfOnly && newData) {
   loadFormData();
 }
 }, { deep: true });
 
-// Cleanup
 watch(() => props.popupMode, (newVal) => {
   if (newVal) checkMobileView();
 });
 
-// Remove the global exports, they are not best practice with <script setup>
 </script>
 
 <style scoped>
@@ -969,8 +604,8 @@ watch(() => props.popupMode, (newVal) => {
   opacity: 0 !important;
   pointer-events: none !important;
   visibility: hidden !important;
-  width: 8.5in !important; /* Ensure it has dimensions for html2pdf */
-  height: 14in !important; /* Ensure it has dimensions for html2pdf */
+  width: 8.5in !important; 
+  height: 14in !important; 
   overflow: hidden !important;
 }
 
@@ -993,73 +628,181 @@ watch(() => props.popupMode, (newVal) => {
     box-sizing: border-box;
     box-shadow: none;
     border: none;
-    transform: scale(0.98); /* Slightly shrink to fit on one page */
+    transform: scale(0.98); 
     transform-origin: top center;
   }
 }
 
-/* Adjust form dimensions to ensure it fits on a single page */
 .form-container {
   background-color: white;
   border: 1px solid #d1d5db;
   max-width: 8.5in;
   width: 100%;
-  padding: 0.2in;
-  min-height: 14in; /* Changed from fixed height to min-height */
+  padding: 0;
+  min-height: 14in;
+  height: 14in;
   margin: 0 auto;
   box-sizing: border-box;
   page-break-after: always;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  overflow: visible; /* Changed from hidden to visible */
+  overflow: hidden;
+  font-family: Arial, Helvetica, sans-serif;
+  position: relative;
 }
 
-/* Popup mode specific styles */
 :deep([class*='popup-mode']) .form-container {
   margin: 0;
   border: none;
   box-shadow: none;
 }
 
-.text-wmsu {
-  color: #bf0000;
-}
+.text-wmsu { color: #bf0000; }
+.bg-wmsu { background-color: #bf0000; }
+.border-wmsu { border-color: #bf0000; }
 
-.bg-wmsu {
-  background-color: #bf0000;
-}
-
-.border-wmsu {
-  border-color: #bf0000;
-}
-
-.photo-box {
-  width: 2in; /* 2x2 inch size */
-  height: 2in;
-  background-color: #f9f9f9;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #ddd;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-
-.field-line {
-  border-bottom: 1px solid #bf0000;
-  margin-bottom: 0.08in;
+.form-bg-wrap {
   position: relative;
+  width: 100%;
+  height: 100%;
 }
 
-.dashed-line {
-  border-top: 1px dashed #bf0000;
-  margin: 0.3in 0;
+.form-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
+
+.form-overlay {
+  position: absolute;
+  inset: 0;
+  font-size: 8px;
+  color: #000000;
+}
+
+.field {
+  position: absolute;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: visible;
+  letter-spacing: -0.1px;
+}
+
+.field-tight {
+  font-size: 6.5px;
+  letter-spacing: -0.2px;
+  transform: scaleX(0.9);
+  transform-origin: left center;
+}
+
+.check {
+  position: absolute;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  width: 0.18in;
+  height: 0.18in;
+  line-height: 0.18in;
+}
+
+.photo {
+  position: absolute;
+  width: 2in;
+  height: 2in;
+  overflow: hidden;
+}
+
+.photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* -------------------------------------
+   Top section positions (inches) 
+   Corrected Values applied here!
+------------------------------------- */
+
+.field-name { left: 1.05in; top: 2.52in; width: 4.25in; }
+.field-birth-month { left: 6.28in; top: 2.50in; width: 0.3in; text-align: center; }
+.field-birth-day { left: 6.66in; top: 2.50in; width: 0.3in; text-align: center; }
+.field-birth-year { left: 7.05in; top: 2.50in; width: 0.45in; text-align: center; }
+
+.check-sex-male { left: 1.7in; top: 2.98in; }
+.check-sex-female { left: 2.22in; top: 2.98in; }
+
+.field-age { left: 3.27in; top: 2.90in; width: 0.5in; text-align: center; letter-spacing: 0.18in; padding-left: 0.1in; }
+.field-address { left: 5.00in; top: 3.00in; width: 3.63in; }
+
+.field-citizenship { left: 1.15in; top: 3.38in; width: 1.25in; }
+.field-contact { left: 3.20in; top: 3.38in; width: 1.0in; }
+.field-email { left: 5.67in; top: 3.38in; width: 1.88in; }
+
+.check-first-yes { left: 1.55in; top: 3.85in; }
+.check-first-no { left: 2.21in; top: 3.77in; }
+.field-times-taken { left: 6.35in; top: 3.85in; width: 1.25in; text-align: center; }
+
+.check-app-shs { left: 0.61in; top: 4.25in; }
+.field-shs-school { left: 1.85in; top: 4.45in; width: 3.7in; }
+.field-shs-grad { left: 6.35in; top: 4.70in; width: 1.3in; text-align: center; }
+.field-shs-address { left: 1.55in; top: 4.94in; width: 6.15in; }
+
+.check-app-shg { left: 0.35in; top: 5.50in; }
+.field-shg-school { left: 1.55in; top: 5.50in; width: 3.9in; }
+.field-shg-grad { left: 6.35in; top: 5.50in; width: 1.3in; text-align: center; }
+.field-shg-address { left: 1.55in; top: 5.74in; width: 6.15in; }
+
+.check-app-college { left: 0.35in; top: 6.25in; }
+.field-college-school { left: 2.1in; top: 6.24in; width: 3.45in; }
+.field-college-course { left: 6.35in; top: 6.24in; width: 1.3in; }
+.field-college-address { left: 1.55in; top: 6.47in; width: 6.15in; }
+
+.field-test-date { left: 0.95in; top: 7.42in; width: 1.25in; text-align: center; }
+.field-test-center { left: 2.35in; top: 7.42in; width: 1.6in; text-align: center; }
+.field-room { left: 4.1in; top: 7.42in; width: 1.1in; text-align: center; }
+.field-time { left: 5.25in; top: 7.42in; width: 1.1in; text-align: center; }
+.field-center-code { left: 6.45in; top: 7.42in; width: 0.75in; text-align: center; }
+.field-hs-code { left: 7.25in; top: 7.42in; width: 0.85in; text-align: center; }
+
+.photo-top { right: 0.25in; top: 0.55in; }
+
+/* Bottom section positions (inches) */
+
+.field-permit-name { left: 1.05in; top: 9.62in; width: 4.7in; }
+.field-permit-school { left: 1.05in; top: 10.12in; width: 4.7in; }
+
+.field-permit-test-date { left: 1.15in; top: 10.95in; width: 1.2in; text-align: center; }
+.field-permit-test-center { left: 2.55in; top: 10.95in; width: 1.6in; text-align: center; }
+.field-permit-room { left: 4.25in; top: 10.95in; width: 1.05in; text-align: center; }
+.field-permit-time { left: 5.35in; top: 10.95in; width: 1.1in; text-align: center; }
+.field-permit-center-code { left: 6.52in; top: 10.95in; width: 0.75in; text-align: center; }
+.field-permit-hs-code { left: 7.32in; top: 10.95in; width: 0.85in; text-align: center; }
+
+.check-student-shs { left: 3.05in; top: 11.95in; }
+.check-student-shg { left: 3.05in; top: 12.15in; }
+.check-student-wmsu-main { left: 3.05in; top: 12.35in; }
+.check-student-wmsu-external { left: 3.05in; top: 12.55in; }
+.check-student-non-wmsu { left: 3.05in; top: 12.75in; }
+
+.photo-bottom { right: 0.45in; top: 11.65in; }
+
+/* General utility classes */
+.field-line { border-bottom: 1px solid #bf0000; margin-bottom: 0.08in; position: relative; }
+.dashed-line { border-top: 1px dashed #bf0000; margin: 0.3in 0; }
+.instructions { padding-left: 16px; margin: 0; }
+.photo-caption { max-width: 2.2in; }
+.signature-block { max-width: 2.2in; }
+.applicant-section { margin-top: 6px; }
+.dob-labels { margin-right: 2px; }
+.note-block { position: absolute; left: 0.15in; top: 0.8in; width: 1.6in; }
 
 .vertical-ticket {
   writing-mode: vertical-rl;
   transform: rotate(180deg);
   position: absolute;
-  left: -13px;
-  top: 0;
+  left: -12px;
+  top: 0.4in;
   height: 80%;
   border-right: 2px solid #bf0000;
   border-top: 1px solid #bf0000;
@@ -1073,48 +816,17 @@ watch(() => props.popupMode, (newVal) => {
   width: 33px;
 }
 
-.section-spacing {
-  margin-bottom: 0.1in;
-}
+.section-spacing { margin-bottom: 0.1in; }
+.table-spacing { margin: 0.1in 0; }
+.top-section { min-height: 54%; overflow: visible; }
+.bottom-section { min-height: 46%; overflow: visible; }
 
-.table-spacing {
-  margin: 0.1in 0;
-}
+input[type="radio"], input[type="checkbox"] { accent-color: #bf0000; }
+input { font-family: Arial, sans-serif; }
+input[type="text"] { border: none; padding: 0; margin: 0; }
 
-.top-section {
-  min-height: 54%; /* Changed from fixed height to min-height */
-  overflow: visible; /* Changed from hidden to visible */
-}
-
-.bottom-section {
-  min-height: 46%; /* Changed from fixed height to min-height */
-  overflow: visible; /* Changed from hidden to visible */
-}
-
-input[type="radio"], input[type="checkbox"] {
-  accent-color: #bf0000;
-}
-
-input {
-  font-family: Arial, sans-serif;
-}
-
-/* Ensure text inputs don't show default styling */
-input[type="text"] {
-  border: none;
-  padding: 0;
-  margin: 0;
-}
-
-.pdf-friendly-input {
-  margin-bottom: 5px;
-}
-
-.input-container {
-  border-bottom: 1px solid #000;
-  min-height: 24px;
-  position: relative;
-}
+.pdf-friendly-input { margin-bottom: 5px; }
+.input-container { border-bottom: 1px solid #000; min-height: 24px; position: relative; }
 
 .input-text {
   position: relative;
@@ -1126,12 +838,8 @@ input[type="text"] {
   color: #000000;
 }
 
-/* Additional styles for PDF mode */
 @media print {
-  .input-container {
-    padding-top: 1mm !important;
-  }
-  
+  .input-container { padding-top: 1mm !important; }
   .input-text {
     position: absolute !important;
     top: 0 !important;
@@ -1152,10 +860,7 @@ input[type="text"] {
 }
 
 @media print {
-  .pdf-text {
-    font-size: 9px !important;
-    line-height: 1.1 !important;
-  }
+  .pdf-text { font-size: 9px !important; line-height: 1.1 !important; }
 }
 
 .form-text {
@@ -1169,19 +874,13 @@ input[type="text"] {
 
 @media print {
   .form-text {
-    /* PDF-specific adjustments */
     bottom: 2px !important;
     line-height: 1.1 !important;
     font-family: Arial, sans-serif !important;
   }
-  
-  /* Ensure container has enough space */
-  .border-b {
-    min-height: 6mm !important;
-  }
+  .border-b { min-height: 6mm !important; }
 }
 
-/* CSS Classes for PDF fields */
 .pdf-line-container {
   position: relative;
   min-height: 20px;
@@ -1201,15 +900,11 @@ input[type="text"] {
   font-family: Arial, sans-serif;
 }
 
-/* Mobile-specific styles */
 @media (max-width: 767px) {
   .form-container {
-    padding: 0.1in;
     transform: scale(0.95);
     transform-origin: top center;
   }
-  
-  /* Ensure buttons are more visible on mobile */
   button {
     font-size: 14px;
     padding: 10px 16px !important;

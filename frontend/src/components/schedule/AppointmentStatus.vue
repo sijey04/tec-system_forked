@@ -901,6 +901,7 @@ const downloadApplicationForm = () => {
         test_center_code: appointment.value.test_center_code,
         room_number: appointment.value.room_number,
         room_code: appointment.value.room_code,
+        test_session_exam_date: appointment.value.test_session_exam_date,
         
         // Applicant type and school info structure
         applicantType: appointment.value.applicant_type || '',
