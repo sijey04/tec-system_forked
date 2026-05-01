@@ -41,24 +41,24 @@
           <span class="field field-college-course field-tight">{{ form.applicantType === 'college_student' ? (form.course ? form.course.toUpperCase() : '') : '' }}</span>
           <span class="field field-college-address field-tight">{{ form.applicantType === 'college_student' ? (form.schoolAddress ? form.schoolAddress.toUpperCase() : '') : '' }}</span>
 
-          <span class="field field-test-date field-tight">{{ appointmentInfo.test_date ? formatAppointmentDate(appointmentInfo.test_date).toUpperCase() : ((appointmentInfo.date) ? formatAppointmentDate(appointmentInfo.date).toUpperCase() : 'TO BE ASSIGNED') }}</span>
-          <span class="field field-test-center field-tight">{{ appointmentInfo.test_center ? appointmentInfo.test_center.toUpperCase() : 'TO BE ASSIGNED' }}</span>
-          <span class="field field-room field-tight">{{ (appointmentInfo.room_number ? (String(appointmentInfo.room_number) + (appointmentInfo.room_code ? ' ' + String(appointmentInfo.room_code) : '')).toUpperCase() : 'TO BE ASSIGNED') }}</span>
-          <span class="field field-time field-tight">{{ appointmentInfo.time_slot ? formatTimeSlot(appointmentInfo.time_slot).toUpperCase() : 'TO BE ASSIGNED' }}</span>
-          <span class="field field-center-code field-tight">{{ appointmentInfo.test_center_code ? String(appointmentInfo.test_center_code).toUpperCase() : 'TO BE ASSIGNED' }}</span>
-          <span class="field field-hs-code field-tight">{{ form.highSchoolCode ? String(form.highSchoolCode).toUpperCase() : 'NOT PROVIDED' }}</span>
+          <span class="field field-test-date field-table">{{ appointmentInfo.test_date ? formatAppointmentDate(appointmentInfo.test_date).toUpperCase() : ((appointmentInfo.date) ? formatAppointmentDate(appointmentInfo.date).toUpperCase() : 'TO BE ASSIGNED') }}</span>
+          <span class="field field-test-center field-table">{{ appointmentInfo.test_center ? appointmentInfo.test_center.toUpperCase() : 'TO BE ASSIGNED' }}</span>
+          <span class="field field-room field-table">{{ (appointmentInfo.room_number ? (String(appointmentInfo.room_number) + (appointmentInfo.room_code ? ' ' + String(appointmentInfo.room_code) : '')).toUpperCase() : 'TO BE ASSIGNED') }}</span>
+          <span class="field field-time field-table">{{ appointmentInfo.time_slot ? formatTimeSlot(appointmentInfo.time_slot).toUpperCase() : 'TO BE ASSIGNED' }}</span>
+          <span class="field field-center-code field-table">{{ appointmentInfo.test_center_code ? String(appointmentInfo.test_center_code).toUpperCase() : 'TO BE ASSIGNED' }}</span>
+          <span class="field field-hs-code field-table">{{ form.highSchoolCode ? String(form.highSchoolCode).toUpperCase() : 'NOT PROVIDED' }}</span>
 
           <div class="photo photo-top"></div>
 
           <span class="field field-permit-name field-tight">{{ form.name ? form.name.toUpperCase() : '' }}</span>
           <span class="field field-permit-school field-tight">{{ form.schoolName ? form.schoolName.toUpperCase() : '' }}</span>
 
-          <span class="field field-permit-test-date field-tight">{{ appointmentInfo.test_date ? formatAppointmentDate(appointmentInfo.test_date).toUpperCase() : ((appointmentInfo.date) ? formatAppointmentDate(appointmentInfo.date).toUpperCase() : 'TO BE ASSIGNED') }}</span>
-          <span class="field field-permit-test-center field-tight">{{ appointmentInfo.test_center ? appointmentInfo.test_center.toUpperCase() : 'TO BE ASSIGNED' }}</span>
-          <span class="field field-permit-room field-tight">{{ (appointmentInfo.room_number ? (String(appointmentInfo.room_number) + (appointmentInfo.room_code ? ' ' + String(appointmentInfo.room_code) : '')).toUpperCase() : 'TO BE ASSIGNED') }}</span>
-          <span class="field field-permit-time field-tight">{{ appointmentInfo.time_slot ? formatTimeSlot(appointmentInfo.time_slot).toUpperCase() : 'TO BE ASSIGNED' }}</span>
-          <span class="field field-permit-center-code field-tight">{{ appointmentInfo.test_center_code ? String(appointmentInfo.test_center_code).toUpperCase() : 'TO BE ASSIGNED' }}</span>
-          <span class="field field-permit-hs-code field-tight">{{ form.highSchoolCode ? String(form.highSchoolCode).toUpperCase() : 'NOT PROVIDED' }}</span>
+          <span class="field field-permit-test-date field-table">{{ appointmentInfo.test_date ? formatAppointmentDate(appointmentInfo.test_date).toUpperCase() : ((appointmentInfo.date) ? formatAppointmentDate(appointmentInfo.date).toUpperCase() : 'TO BE ASSIGNED') }}</span>
+          <span class="field field-permit-test-center field-table">{{ appointmentInfo.test_center ? appointmentInfo.test_center.toUpperCase() : 'TO BE ASSIGNED' }}</span>
+          <span class="field field-permit-room field-table">{{ (appointmentInfo.room_number ? (String(appointmentInfo.room_number) + (appointmentInfo.room_code ? ' ' + String(appointmentInfo.room_code) : '')).toUpperCase() : 'TO BE ASSIGNED') }}</span>
+          <span class="field field-permit-time field-table">{{ appointmentInfo.time_slot ? formatTimeSlot(appointmentInfo.time_slot).toUpperCase() : 'TO BE ASSIGNED' }}</span>
+          <span class="field field-permit-center-code field-table">{{ appointmentInfo.test_center_code ? String(appointmentInfo.test_center_code).toUpperCase() : 'TO BE ASSIGNED' }}</span>
+          <span class="field field-permit-hs-code field-table">{{ form.highSchoolCode ? String(form.highSchoolCode).toUpperCase() : 'NOT PROVIDED' }}</span>
 
           <span class="check check-student-shs">{{ form.applicantType === 'senior_high_student' ? 'X' : '' }}</span>
           <span class="check check-student-shg">{{ form.applicantType === 'senior_high_graduate' ? 'X' : '' }}</span>
@@ -677,7 +677,7 @@ watch(() => props.popupMode, (newVal) => {
 .form-overlay {
   position: absolute;
   inset: 0;
-  font-size: 8px;
+  font-size: 12px;
   color: #000000;
 }
 
@@ -687,18 +687,26 @@ watch(() => props.popupMode, (newVal) => {
   white-space: nowrap;
   overflow: visible;
   letter-spacing: -0.1px;
+  font-weight: bold;
 }
 
 .field-tight {
-  font-size: 6.5px;
+  font-size: 10px;
   letter-spacing: -0.2px;
   transform: scaleX(0.9);
   transform-origin: left center;
 }
 
+.field-table {
+  font-size: 8.5px;
+  letter-spacing: -0.3px;
+  transform: scaleX(0.8);
+  transform-origin: center center;
+}
+
 .check {
   position: absolute;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: bold;
   text-align: center;
   width: 0.18in;
@@ -724,39 +732,39 @@ watch(() => props.popupMode, (newVal) => {
    Corrected Values applied here!
 ------------------------------------- */
 
-.field-name { left: 1.05in; top: 2.52in; width: 4.25in; }
-.field-birth-month { left: 6.28in; top: 2.50in; width: 0.3in; text-align: center; }
-.field-birth-day { left: 6.66in; top: 2.50in; width: 0.3in; text-align: center; }
-.field-birth-year { left: 7.05in; top: 2.50in; width: 0.45in; text-align: center; }
+.field-name { left: 1.05in; top: 2.41in; width: 4.25in; }
+.field-birth-month { left: 6.33in; top: 2.45in; width: 0.3in; text-align: center; }
+.field-birth-day { left: 6.71in; top: 2.45in; width: 0.3in; text-align: center; }
+.field-birth-year { left: 7.12in; top: 2.45in; width: 0.45in; text-align: center; }
 
 .check-sex-male { left: 1.7in; top: 2.98in; }
 .check-sex-female { left: 2.22in; top: 2.98in; }
 
-.field-age { left: 3.27in; top: 2.90in; width: 0.5in; text-align: center; letter-spacing: 0.18in; padding-left: 0.1in; }
-.field-address { left: 5.00in; top: 3.00in; width: 3.63in; }
+.field-age { left: 3.27in; top: 2.85in; width: 0.5in; text-align: center; letter-spacing: 0.18in; padding-left: 0.1in; }
+.field-address { left: 5.00in; top: 2.89in; width: 3.63in; }
 
-.field-citizenship { left: 1.15in; top: 3.38in; width: 1.25in; }
-.field-contact { left: 3.20in; top: 3.38in; width: 1.0in; }
-.field-email { left: 5.67in; top: 3.38in; width: 1.88in; }
+.field-citizenship { left: 1.15in; top: 3.27in; width: 1.25in; }
+.field-contact { left: 3.20in; top: 3.27in; width: 1.0in; }
+.field-email { left: 5.67in; top: 3.27in; width: 1.88in; }
 
 .check-first-yes { left: 1.55in; top: 3.85in; }
 .check-first-no { left: 2.21in; top: 3.77in; }
 .field-times-taken { left: 6.35in; top: 3.85in; width: 1.25in; text-align: center; }
 
 .check-app-shs { left: 0.61in; top: 4.25in; }
-.field-shs-school { left: 1.85in; top: 4.45in; width: 3.7in; }
-.field-shs-grad { left: 6.35in; top: 4.70in; width: 1.3in; text-align: center; }
-.field-shs-address { left: 1.55in; top: 4.94in; width: 6.15in; }
+.field-shs-school { left: 1.85in; top: 4.36in; width: 3.7in; }
+.field-shs-grad { left: 6.35in; top: 4.61in; width: 1.3in; text-align: center; }
+.field-shs-address { left: 1.55in; top: 4.85in; width: 6.15in; }
 
 .check-app-shg { left: 0.35in; top: 5.50in; }
-.field-shg-school { left: 1.55in; top: 5.50in; width: 3.9in; }
-.field-shg-grad { left: 6.35in; top: 5.50in; width: 1.3in; text-align: center; }
-.field-shg-address { left: 1.55in; top: 5.74in; width: 6.15in; }
+.field-shg-school { left: 1.55in; top: 5.41in; width: 3.9in; }
+.field-shg-grad { left: 6.35in; top: 5.41in; width: 1.3in; text-align: center; }
+.field-shg-address { left: 1.55in; top: 5.65in; width: 6.15in; }
 
 .check-app-college { left: 0.35in; top: 6.25in; }
-.field-college-school { left: 2.1in; top: 6.24in; width: 3.45in; }
-.field-college-course { left: 6.35in; top: 6.24in; width: 1.3in; }
-.field-college-address { left: 1.55in; top: 6.47in; width: 6.15in; }
+.field-college-school { left: 2.1in; top: 6.15in; width: 3.45in; }
+.field-college-course { left: 6.35in; top: 6.15in; width: 1.3in; }
+.field-college-address { left: 1.55in; top: 6.38in; width: 6.15in; }
 
 .field-test-date { left: 0.95in; top: 7.42in; width: 1.25in; text-align: center; }
 .field-test-center { left: 2.35in; top: 7.42in; width: 1.6in; text-align: center; }
@@ -769,8 +777,8 @@ watch(() => props.popupMode, (newVal) => {
 
 /* Bottom section positions (inches) */
 
-.field-permit-name { left: 1.05in; top: 9.62in; width: 4.7in; }
-.field-permit-school { left: 1.05in; top: 10.12in; width: 4.7in; }
+.field-permit-name { left: 1.05in; top: 9.51in; width: 4.7in; }
+.field-permit-school { left: 1.05in; top: 10.01in; width: 4.7in; }
 
 .field-permit-test-date { left: 1.15in; top: 10.95in; width: 1.2in; text-align: center; }
 .field-permit-test-center { left: 2.55in; top: 10.95in; width: 1.6in; text-align: center; }
@@ -779,11 +787,11 @@ watch(() => props.popupMode, (newVal) => {
 .field-permit-center-code { left: 6.52in; top: 10.95in; width: 0.75in; text-align: center; }
 .field-permit-hs-code { left: 7.32in; top: 10.95in; width: 0.85in; text-align: center; }
 
-.check-student-shs { left: 3.05in; top: 11.95in; }
-.check-student-shg { left: 3.05in; top: 12.15in; }
-.check-student-wmsu-main { left: 3.05in; top: 12.35in; }
-.check-student-wmsu-external { left: 3.05in; top: 12.55in; }
-.check-student-non-wmsu { left: 3.05in; top: 12.75in; }
+.check-student-shs { left: 3.00in; top: 11.85in; }
+.check-student-shg { left: 3.00in; top: 12.05in; }
+.check-student-wmsu-main { left: 3.00in; top: 12.25in; }
+.check-student-wmsu-external { left: 3.00in; top: 12.45in; }
+.check-student-non-wmsu { left: 3.00in; top: 12.65in; }
 
 .photo-bottom { right: 0.45in; top: 11.65in; }
 
@@ -810,7 +818,7 @@ watch(() => props.popupMode, (newVal) => {
   padding: 2px;
   text-align: center;
   font-weight: bold;
-  font-size: 6px;
+  font-size: 8px;
   color: #bf0000;
   background: white;
   width: 33px;
@@ -851,7 +859,7 @@ input[type="text"] { border: none; padding: 0; margin: 0; }
 }
 
 .pdf-text {
-  font-size: 8px;
+  font-size: 10px;
   line-height: 1.2;
   padding: 1px 0;
   overflow: hidden;
@@ -860,7 +868,7 @@ input[type="text"] { border: none; padding: 0; margin: 0; }
 }
 
 @media print {
-  .pdf-text { font-size: 9px !important; line-height: 1.1 !important; }
+  .pdf-text { font-size: 11px !important; line-height: 1.1 !important; }
 }
 
 .form-text {
