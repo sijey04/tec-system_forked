@@ -864,8 +864,8 @@ export default {
           birthDay: appointment.birth_day,
           birthYear: appointment.birth_year,
           gender: {
-            male: appointment.gender === 'Male',
-            female: appointment.gender === 'Female'
+            male: String(appointment.gender).toLowerCase() === 'male',
+            female: String(appointment.gender).toLowerCase() === 'female'
           },
           age: appointment.age,
           homeAddress: appointment.home_address,
@@ -875,6 +875,10 @@ export default {
           preferredDate: appointment.created_at,
           applicantType: appointment.applicant_type,
           schoolName: appointment.school_name,
+          schoolAddress: appointment.school_address || '',
+          graduationDate: appointment.school_graduation_date || '',
+          college_course: appointment.college_course || '',
+          college_type: appointment.college_type || '',
           wmsucetExperience: {
             firstTime: appointment.is_first_time_taking_test,
             notFirstTime: !appointment.is_first_time_taking_test,

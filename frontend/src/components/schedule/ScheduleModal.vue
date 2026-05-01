@@ -3931,13 +3931,23 @@ export default {
           applicationData.college_type = formData.value.college.collegeType;
         }
         
+        const schoolName = formData.value.applicantType === 'senior_high_graduating' ? formData.value.seniorGraduating.schoolName :
+          formData.value.applicantType === 'senior_high_graduate' ? formData.value.seniorGraduate.schoolName :
+          formData.value.applicantType === 'college' ? formData.value.college.schoolName : '';
+        const schoolAddress = formData.value.applicantType === 'senior_high_graduating' ? formData.value.seniorGraduating.schoolAddress :
+          formData.value.applicantType === 'senior_high_graduate' ? formData.value.seniorGraduate.schoolAddress :
+          formData.value.applicantType === 'college' ? formData.value.college.schoolAddress : '';
+        const graduationDate = formData.value.applicantType === 'senior_high_graduating' ? formData.value.seniorGraduating.graduationDate :
+          formData.value.applicantType === 'senior_high_graduate' ? formData.value.seniorGraduate.graduationDate : '';
+
         ApplicationFormStore.setFormData({
           fullName: `${formData.value.lastName}, ${formData.value.firstName} ${formData.value.middleName} ${formData.value.suffix}`.trim().replace(/\s+/g, ' '),
           contactNumber: formData.value.contactNumber,
           email: formData.value.email,
-          schoolName: formData.value.applicantType === 'senior_high_graduating' ? formData.value.seniorGraduating.schoolName : 
-                     formData.value.applicantType === 'senior_high_graduate' ? formData.value.seniorGraduate.schoolName :
-                     formData.value.applicantType === 'college' ? formData.value.college.schoolName : '',
+          schoolName,
+          schoolAddress,
+          graduationDate,
+          school_graduation_date: graduationDate,
           birthMonth: formData.value.birthMonth,
           birthDay: formData.value.birthDay,
           birthYear: formData.value.birthYear,

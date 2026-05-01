@@ -429,8 +429,6 @@
           </div>
           
           <!-- Action Buttons - More compact and responsive -->
-          <!-- Temporarily commented out download button -->
-          <!--
           <div 
             v-if="shouldShowFormDownloadButton" 
             class="flex flex-col sm:flex-row justify-center items-center gap-3 pt-2"
@@ -445,7 +443,6 @@
               {{ isGeneratingPdf ? 'Generating PDF...' : 'Download Application Form' }}
             </button>
           </div>
-          -->
           
           <!-- Add Reschedule Button (shown for appropriate statuses) -->
           <div 
@@ -905,7 +902,10 @@ const downloadApplicationForm = () => {
         
         // Applicant type and school info structure
         applicantType: appointment.value.applicant_type || '',
-        schoolName: appointment.value.school_name || ''
+        schoolName: appointment.value.school_name || '',
+        schoolAddress: appointment.value.school_address || '',
+        graduationDate: appointment.value.school_graduation_date || '',
+        school_graduation_date: appointment.value.school_graduation_date || ''
       }
 
       // Construct nested school info based on applicant type

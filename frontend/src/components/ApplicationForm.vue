@@ -27,19 +27,19 @@
           <span class="field field-times-taken">{{ form.timesTaken ? String(form.timesTaken).toUpperCase() : '' }}</span>
 
           <span class="check check-app-shs">{{ form.applicantType === 'senior_high_student' ? 'X' : '' }}</span>
-          <span class="field field-shs-school field-tight">{{ form.applicantType === 'senior_high_student' ? (form.schoolName ? form.schoolName.toUpperCase() : '') : '' }}</span>
-          <span class="field field-shs-grad">{{ form.applicantType === 'senior_high_student' ? (form.graduationDate ? form.graduationDate.toUpperCase() : '') : '' }}</span>
-          <span class="field field-shs-address field-tight">{{ form.applicantType === 'senior_high_student' ? (form.schoolAddress ? form.schoolAddress.toUpperCase() : '') : '' }}</span>
+          <span class="field field-shs-school field-tight">{{ form.applicantType === 'senior_high_student' ? (form.schoolName ? String(form.schoolName).toUpperCase() : '') : '' }}</span>
+          <span class="field field-shs-grad">{{ form.applicantType === 'senior_high_student' ? (form.graduationDate ? String(form.graduationDate).toUpperCase() : '') : '' }}</span>
+          <span class="field field-shs-address field-tight">{{ form.applicantType === 'senior_high_student' ? (form.schoolAddress ? String(form.schoolAddress).toUpperCase() : '') : '' }}</span>
 
           <span class="check check-app-shg">{{ form.applicantType === 'senior_high_graduate' ? 'X' : '' }}</span>
-          <span class="field field-shg-school field-tight">{{ form.applicantType === 'senior_high_graduate' ? (form.schoolName ? form.schoolName.toUpperCase() : '') : '' }}</span>
-          <span class="field field-shg-grad">{{ form.applicantType === 'senior_high_graduate' ? (form.graduationDate ? form.graduationDate.toUpperCase() : '') : '' }}</span>
-          <span class="field field-shg-address field-tight">{{ form.applicantType === 'senior_high_graduate' ? (form.schoolAddress ? form.schoolAddress.toUpperCase() : '') : '' }}</span>
+          <span class="field field-shg-school field-tight">{{ form.applicantType === 'senior_high_graduate' ? (form.schoolName ? String(form.schoolName).toUpperCase() : '') : '' }}</span>
+          <span class="field field-shg-grad">{{ form.applicantType === 'senior_high_graduate' ? (form.graduationDate ? String(form.graduationDate).toUpperCase() : '') : '' }}</span>
+          <span class="field field-shg-address field-tight">{{ form.applicantType === 'senior_high_graduate' ? (form.schoolAddress ? String(form.schoolAddress).toUpperCase() : '') : '' }}</span>
 
           <span class="check check-app-college">{{ form.applicantType === 'college_student' ? 'X' : '' }}</span>
-          <span class="field field-college-school field-tight">{{ form.applicantType === 'college_student' ? (form.schoolName ? form.schoolName.toUpperCase() : '') : '' }}</span>
-          <span class="field field-college-course field-tight">{{ form.applicantType === 'college_student' ? (form.course ? form.course.toUpperCase() : '') : '' }}</span>
-          <span class="field field-college-address field-tight">{{ form.applicantType === 'college_student' ? (form.schoolAddress ? form.schoolAddress.toUpperCase() : '') : '' }}</span>
+          <span class="field field-college-school field-tight">{{ form.applicantType === 'college_student' ? (form.schoolName ? String(form.schoolName).toUpperCase() : '') : '' }}</span>
+          <span class="field field-college-course field-tight">{{ form.applicantType === 'college_student' ? (form.course ? String(form.course).toUpperCase() : '') : '' }}</span>
+          <span class="field field-college-address field-tight">{{ form.applicantType === 'college_student' ? (form.schoolAddress ? String(form.schoolAddress).toUpperCase() : '') : '' }}</span>
 
           <span class="field field-test-date field-table">{{ appointmentInfo.test_date ? formatAppointmentDate(appointmentInfo.test_date).toUpperCase() : ((appointmentInfo.date) ? formatAppointmentDate(appointmentInfo.date).toUpperCase() : 'TO BE ASSIGNED') }}</span>
           <span class="field field-test-center field-table">{{ appointmentInfo.test_center ? appointmentInfo.test_center.toUpperCase() : 'TO BE ASSIGNED' }}</span>
@@ -274,13 +274,22 @@ const loadFormData = () => {
     if (props.outputPdfOnly) {
       console.log('[ApplicationForm outputPdfOnly] Received testFormData:', testFormData);
     }
+
+    const serverPayload = testFormData.serverModel || testFormData.serverResponse || {};
     
     // Personal Information
     form.name = testFormData.fullName || '';
     form.birthMonth = testFormData.birthMonth || '';
     form.birthDay = testFormData.birthDay || '';
     form.birthYear = testFormData.birthYear || '';
-    form.sex = testFormData.gender?.male ? 'male' : (testFormData.gender?.female ? 'female' : '');
+    // Handle gender which can be a string (from AppointmentStatus) or an object (from Profile)
+    if (typeof testFormData.gender === 'object' && testFormData.gender !== null) {
+      form.sex = testFormData.gender.male ? 'male' : (testFormData.gender.female ? 'female' : '');
+    } else if (typeof testFormData.gender === 'string') {
+      form.sex = testFormData.gender.toLowerCase();
+    } else {
+      form.sex = '';
+    }
     form.age = testFormData.age || '';
     form.address = testFormData.homeAddress || '';
     form.citizenship = testFormData.citizenship || '';
@@ -321,12 +330,16 @@ const loadFormData = () => {
     }
 
     // Applicant Type and School Info Mapping
-    let applicantTypeMapping = {
+    const applicantTypeMapping = {
       'senior_high_graduating': 'senior_high_student',
       'senior_high_graduate': 'senior_high_graduate',
-      'college': 'college_student'
+      'college': 'college_student',
+      // Handle already-normalized values
+      'senior_high_student': 'senior_high_student',
+      'college_student': 'college_student'
     };
-    form.applicantType = applicantTypeMapping[testFormData.applicantType] || '';
+    const applicantTypeRaw = testFormData.applicantType || testFormData.applicant_type || serverPayload.applicant_type || '';
+    form.applicantType = applicantTypeMapping[applicantTypeRaw] || applicantTypeRaw || '';
     
     form.schoolName = ''; // Reset before conditional assignment
     form.schoolAddress = '';
@@ -334,23 +347,34 @@ const loadFormData = () => {
     form.course = '';
     form.collegeType = '';
 
-    if (testFormData.applicantType === 'senior_high_graduating') {
-      form.schoolName = testFormData.seniorGraduating?.schoolName || testFormData.schoolName || '';
-      form.schoolAddress = testFormData.seniorGraduating?.schoolAddress || '';
-      form.graduationDate = testFormData.seniorGraduating?.graduationDate || '';
-    } else if (testFormData.applicantType === 'senior_high_graduate') {
-      form.schoolName = testFormData.seniorGraduate?.schoolName || testFormData.schoolName || '';
-      form.schoolAddress = testFormData.seniorGraduate?.schoolAddress || '';
-      form.graduationDate = testFormData.seniorGraduate?.graduationDate || '';
-    } else if (testFormData.applicantType === 'college') {
-      form.schoolName = testFormData.college?.schoolName || testFormData.schoolName || '';
-      form.schoolAddress = testFormData.college?.schoolAddress || '';
-      form.course = testFormData.college?.course || '';
-      form.collegeType = testFormData.college?.collegeType || '';
+    const isSeniorGraduating = applicantTypeRaw === 'senior_high_graduating' || form.applicantType === 'senior_high_student';
+    const isSeniorGraduate = applicantTypeRaw === 'senior_high_graduate' || form.applicantType === 'senior_high_graduate';
+    const isCollegeStudent = applicantTypeRaw === 'college' || form.applicantType === 'college_student';
+
+    if (isSeniorGraduating) {
+      form.schoolName = testFormData.seniorGraduating?.schoolName || testFormData.schoolName || serverPayload.school_name || '';
+      form.schoolAddress = testFormData.seniorGraduating?.schoolAddress || testFormData.schoolAddress || testFormData.school_address || serverPayload.school_address || '';
+      form.graduationDate = testFormData.seniorGraduating?.graduationDate || testFormData.graduationDate || testFormData.school_graduation_date || serverPayload.school_graduation_date || '';
+    } else if (isSeniorGraduate) {
+      form.schoolName = testFormData.seniorGraduate?.schoolName || testFormData.schoolName || serverPayload.school_name || '';
+      form.schoolAddress = testFormData.seniorGraduate?.schoolAddress || testFormData.schoolAddress || testFormData.school_address || serverPayload.school_address || '';
+      form.graduationDate = testFormData.seniorGraduate?.graduationDate || testFormData.graduationDate || testFormData.school_graduation_date || serverPayload.school_graduation_date || '';
+    } else if (isCollegeStudent) {
+      form.schoolName = testFormData.college?.schoolName || testFormData.schoolName || serverPayload.school_name || '';
+      form.schoolAddress = testFormData.college?.schoolAddress || testFormData.schoolAddress || testFormData.school_address || serverPayload.school_address || '';
+      form.course = testFormData.college?.course || testFormData.college_course || serverPayload.college_course || '';
+      form.collegeType = testFormData.college?.collegeType || testFormData.college_type || serverPayload.college_type || '';
     } else {
-      // Fallback for unknown applicantType, perhaps use top-level schoolName if available
-      form.schoolName = testFormData.schoolName || ''; 
+      // Fallback for unknown applicantType, use top-level fields if available
+      form.schoolName = testFormData.schoolName || serverPayload.school_name || '';
+      form.schoolAddress = testFormData.schoolAddress || testFormData.school_address || serverPayload.school_address || '';
+      form.graduationDate = testFormData.graduationDate || testFormData.school_graduation_date || serverPayload.school_graduation_date || '';
     }
+
+    // Final global fallbacks if still empty
+    if (!form.schoolName) form.schoolName = testFormData.schoolName || testFormData.school_name || serverPayload.school_name || '';
+    if (!form.schoolAddress) form.schoolAddress = testFormData.schoolAddress || testFormData.school_address || serverPayload.school_address || '';
+    if (!form.graduationDate) form.graduationDate = testFormData.graduationDate || testFormData.school_graduation_date || serverPayload.school_graduation_date || '';
 
     if (props.outputPdfOnly) {
       console.log('[ApplicationForm outputPdfOnly] Populated form object (School Info):',
@@ -732,13 +756,19 @@ watch(() => props.popupMode, (newVal) => {
    Corrected Values applied here!
 ------------------------------------- */
 
-.field-name { left: 1.05in; top: 2.41in; width: 4.25in; }
+.field-name { 
+  left: 1.05in; 
+  top: 2.41in; 
+  width: 4.25in; 
+  word-spacing: 0.45in;
+  letter-spacing: 0.5px;
+}
 .field-birth-month { left: 6.33in; top: 2.45in; width: 0.3in; text-align: center; }
 .field-birth-day { left: 6.71in; top: 2.45in; width: 0.3in; text-align: center; }
 .field-birth-year { left: 7.12in; top: 2.45in; width: 0.45in; text-align: center; }
 
-.check-sex-male { left: 1.7in; top: 2.98in; }
-.check-sex-female { left: 2.22in; top: 2.98in; }
+.check-sex-male { left: 1.79in; top: 2.94in; }
+.check-sex-female { left: 2.31in; top: 2.94in; }
 
 .field-age { left: 3.27in; top: 2.85in; width: 0.5in; text-align: center; letter-spacing: 0.18in; padding-left: 0.1in; }
 .field-address { left: 5.00in; top: 2.89in; width: 3.63in; }
@@ -751,15 +781,15 @@ watch(() => props.popupMode, (newVal) => {
 .check-first-no { left: 2.21in; top: 3.77in; }
 .field-times-taken { left: 6.35in; top: 3.85in; width: 1.25in; text-align: center; }
 
-.check-app-shs { left: 0.61in; top: 4.25in; }
-.field-shs-school { left: 1.85in; top: 4.36in; width: 3.7in; }
-.field-shs-grad { left: 6.35in; top: 4.61in; width: 1.3in; text-align: center; }
-.field-shs-address { left: 1.55in; top: 4.85in; width: 6.15in; }
+.check-app-shs { left: 0.60in; top: 4.25in; }
+.field-shs-school { left: 1.85in; top: 4.47in; width: 3.7in; }
+.field-shs-grad { left: 6.95in; top: 4.44in; width: 1.3in; text-align: center; }
+.field-shs-address { left: 2.45in; top: 4.73in; width: 5.8in; }
 
-.check-app-shg { left: 0.35in; top: 5.50in; }
-.field-shg-school { left: 1.55in; top: 5.41in; width: 3.9in; }
-.field-shg-grad { left: 6.35in; top: 5.41in; width: 1.3in; text-align: center; }
-.field-shg-address { left: 1.55in; top: 5.65in; width: 6.15in; }
+.check-app-shg { left: 0.62in; top: 4.98in; }
+.field-shg-school { left: 2.35in; top: 5.21in; width: 3.9in; }
+.field-shg-grad { left: 6.35in; top: 5.21in; width: 1.3in; text-align: center; }
+.field-shg-address { left: 1.67in; top: 5.49in; width: 6.15in; }
 
 .check-app-college { left: 0.35in; top: 6.25in; }
 .field-college-school { left: 2.1in; top: 6.15in; width: 3.45in; }
@@ -777,8 +807,14 @@ watch(() => props.popupMode, (newVal) => {
 
 /* Bottom section positions (inches) */
 
-.field-permit-name { left: 1.05in; top: 9.51in; width: 4.7in; }
-.field-permit-school { left: 1.05in; top: 10.01in; width: 4.7in; }
+.field-permit-name { 
+  left: 1.05in; 
+  top: 9.54in; 
+  width: 4.7in; 
+  word-spacing: 0.45in;
+  letter-spacing: 0.5px;
+}
+.field-permit-school { left: 1.05in; top: 9.87in; width: 4.7in; }
 
 .field-permit-test-date { left: 1.15in; top: 10.95in; width: 1.2in; text-align: center; }
 .field-permit-test-center { left: 2.55in; top: 10.95in; width: 1.6in; text-align: center; }
