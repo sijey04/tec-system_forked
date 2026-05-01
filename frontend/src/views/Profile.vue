@@ -885,12 +885,12 @@ export default {
             timesTaken: appointment.times_taken_test || ''
           },
           highSchoolCode: appointment.high_school_code || '',
-          // Test details
-          test_date: appointment.test_session?.exam_date,
-          test_center: appointment.test_center?.name,
-          test_center_code: appointment.test_center?.id,
-          room_number: appointment.test_room?.name || appointment.test_room?.room_code,
-          room_code: appointment.test_room?.room_code,
+          // Test details - prioritize the flat fields from the serializer
+          test_date: appointment.test_session_date || (appointment.test_session ? appointment.test_session.exam_date : null),
+          test_center: appointment.test_center_name || (appointment.test_center ? appointment.test_center.name : null),
+          test_center_code: appointment.test_center_code || (appointment.test_center ? appointment.test_center.id : null),
+          room_number: appointment.test_room_name || (appointment.test_room ? (appointment.test_room.name || appointment.test_room.room_code) : null),
+          room_code: appointment.test_room_code || (appointment.test_room ? appointment.test_room.room_code : null),
           time_slot: appointment.assigned_test_time_slot || appointment.time_slot
         };
         

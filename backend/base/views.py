@@ -1865,7 +1865,7 @@ def get_test_details(request, appointment_id):
                 'center_name': appointment.test_center.name,  # Add center_name as an alias for consistency
                 'address': appointment.test_center.address,
                 'location': appointment.test_center.address,  # Add location as an alias for consistency
-                'code': appointment.test_center.id  # Add code field for consistency
+                'code': appointment.test_center.code  # Use actual code field
             }
         
         if appointment.test_room:
@@ -1877,12 +1877,14 @@ def get_test_details(request, appointment_id):
                 'time_slot': appointment.test_room.time_slot
             }
         
-        # Also provide legacy format for compatibility with older frontend code
-        response_data['test_details'] = {
-            'session': response_data.get('test_session'),
-            'center': response_data.get('test_center'),
-            'room': response_data.get('test_room')
-        }
+        # Include high school code from appointment
+        response_data['high_school_code'] = appointment.high_school_code
+        
+        # FINAL LOGGING FOR DEBUGGING
+        print(f"DEBUG: [get_test_details] App ID: {appointment_id}")
+        print(f"DEBUG: [get_test_details] High School Code: {appointment.high_school_code}")
+        print(f"DEBUG: [get_test_details] Test Room: {appointment.test_room.id if appointment.test_room else 'None'}")
+        print(f"DEBUG: [get_test_details] Final response_data keys: {list(response_data.keys())}")
         
         return Response(response_data)
     except Appointment.DoesNotExist:

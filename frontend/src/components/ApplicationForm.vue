@@ -46,7 +46,7 @@
           <span class="field field-room field-table">{{ (appointmentInfo.room_number ? (String(appointmentInfo.room_number) + (appointmentInfo.room_code ? ' ' + String(appointmentInfo.room_code) : '')).toUpperCase() : 'TO BE ASSIGNED') }}</span>
           <span class="field field-time field-table">{{ appointmentInfo.time_slot ? formatTimeSlot(appointmentInfo.time_slot).toUpperCase() : 'TO BE ASSIGNED' }}</span>
           <span class="field field-center-code field-table">{{ appointmentInfo.test_center_code ? String(appointmentInfo.test_center_code).toUpperCase() : 'TO BE ASSIGNED' }}</span>
-          <span class="field field-hs-code field-table">{{ form.highSchoolCode ? String(form.highSchoolCode).toUpperCase() : 'NOT PROVIDED' }}</span>
+          <span class="field field-hs-code field-table">{{ (form.highSchoolCode || appointmentInfo.high_school_code) ? String(form.highSchoolCode || appointmentInfo.high_school_code).toUpperCase() : 'TO BE ASSIGNED' }}</span>
 
           <div class="photo photo-top"></div>
 
@@ -58,7 +58,7 @@
           <span class="field field-permit-room field-table">{{ (appointmentInfo.room_number ? (String(appointmentInfo.room_number) + (appointmentInfo.room_code ? ' ' + String(appointmentInfo.room_code) : '')).toUpperCase() : 'TO BE ASSIGNED') }}</span>
           <span class="field field-permit-time field-table">{{ appointmentInfo.time_slot ? formatTimeSlot(appointmentInfo.time_slot).toUpperCase() : 'TO BE ASSIGNED' }}</span>
           <span class="field field-permit-center-code field-table">{{ appointmentInfo.test_center_code ? String(appointmentInfo.test_center_code).toUpperCase() : 'TO BE ASSIGNED' }}</span>
-          <span class="field field-permit-hs-code field-table">{{ form.highSchoolCode ? String(form.highSchoolCode).toUpperCase() : 'NOT PROVIDED' }}</span>
+          <span class="field field-permit-hs-code field-table">{{ (form.highSchoolCode || appointmentInfo.high_school_code) ? String(form.highSchoolCode || appointmentInfo.high_school_code).toUpperCase() : 'TO BE ASSIGNED' }}</span>
 
           <span class="check check-student-shs">{{ form.applicantType === 'senior_high_student' ? 'X' : '' }}</span>
           <span class="check check-student-shg">{{ form.applicantType === 'senior_high_graduate' ? 'X' : '' }}</span>
@@ -228,6 +228,7 @@ const appointmentInfo = reactive({
   time_slot: '',
   exam_type: '',
   date: '',
+  high_school_code: '',
   forceUpdate: 0
 });
 
@@ -302,13 +303,28 @@ const loadFormData = () => {
       appointmentInfo.id = appointmentId;
       appointmentInfo.date = testFormData.preferredDate || testFormData.preferred_date;
       
-      // Map test details from props if available
-      if (testFormData.test_date) appointmentInfo.test_date = testFormData.test_date;
-      if (testFormData.test_center) appointmentInfo.test_center = testFormData.test_center;
-      if (testFormData.test_center_code) appointmentInfo.test_center_code = testFormData.test_center_code;
-      if (testFormData.room_number) appointmentInfo.room_number = testFormData.room_number;
-      if (testFormData.room_code) appointmentInfo.room_code = testFormData.room_code;
-      if (testFormData.exam_type) appointmentInfo.exam_type = testFormData.exam_type;
+      // Map test details from props if available (check various naming conventions)
+      if (testFormData.test_date || testFormData.test_session_exam_date) {
+        appointmentInfo.test_date = testFormData.test_date || testFormData.test_session_exam_date;
+      }
+      if (testFormData.test_center || testFormData.test_center_name) {
+        appointmentInfo.test_center = testFormData.test_center_name || testFormData.test_center;
+      }
+      if (testFormData.test_center_code) {
+        appointmentInfo.test_center_code = testFormData.test_center_code;
+      }
+      if (testFormData.room_number || testFormData.test_room_name) {
+        appointmentInfo.room_number = testFormData.test_room_name || testFormData.room_number;
+      }
+      if (testFormData.room_code || testFormData.test_room_code) {
+        appointmentInfo.room_code = testFormData.test_room_code || testFormData.room_code;
+      }
+      if (testFormData.exam_type || testFormData.test_session_name) {
+        appointmentInfo.exam_type = testFormData.test_session_name || testFormData.exam_type;
+      }
+      if (testFormData.highSchoolCode || testFormData.high_school_code) {
+        appointmentInfo.high_school_code = testFormData.highSchoolCode || testFormData.high_school_code;
+      }
       
       // Fallback for test_date if it's missing but we have session info
       if (!appointmentInfo.test_date && testFormData.test_session_exam_date) {
@@ -321,11 +337,18 @@ const loadFormData = () => {
         appointmentInfo.reporting_time = slot === 'morning' ? '7:30 AM' : '12:30 PM';
       }
 
-      // If in interactive mode and details are missing, fetch them
-      if (!props.outputPdfOnly) {
-        setTimeout(() => {
+      // Fetch details even in PDF only mode if we have an ID
+      if (appointmentId) {
+        if (!props.outputPdfOnly) {
+          setTimeout(() => {
+            fetchTestDetails(appointmentId);
+          }, 500);
+        } else {
+          // In PDF only mode, we fetch immediately
+          // We don't await here as loadFormData is not async, 
+          // but we'll await in the watch/onMounted
           fetchTestDetails(appointmentId);
-        }, 500);
+        }
       }
     }
 
@@ -352,23 +375,23 @@ const loadFormData = () => {
     const isCollegeStudent = applicantTypeRaw === 'college' || form.applicantType === 'college_student';
 
     if (isSeniorGraduating) {
-      form.schoolName = testFormData.seniorGraduating?.schoolName || testFormData.schoolName || serverPayload.school_name || '';
-      form.schoolAddress = testFormData.seniorGraduating?.schoolAddress || testFormData.schoolAddress || testFormData.school_address || serverPayload.school_address || '';
-      form.graduationDate = testFormData.seniorGraduating?.graduationDate || testFormData.graduationDate || testFormData.school_graduation_date || serverPayload.school_graduation_date || '';
+      form.schoolName = testFormData.seniorGraduating?.schoolName || testFormData.schoolName || testFormData.school_name || serverPayload?.school_name || '';
+      form.schoolAddress = testFormData.seniorGraduating?.schoolAddress || testFormData.schoolAddress || testFormData.school_address || serverPayload?.school_address || '';
+      form.graduationDate = testFormData.seniorGraduating?.graduationDate || testFormData.graduationDate || testFormData.school_graduation_date || serverPayload?.school_graduation_date || '';
     } else if (isSeniorGraduate) {
-      form.schoolName = testFormData.seniorGraduate?.schoolName || testFormData.schoolName || serverPayload.school_name || '';
-      form.schoolAddress = testFormData.seniorGraduate?.schoolAddress || testFormData.schoolAddress || testFormData.school_address || serverPayload.school_address || '';
-      form.graduationDate = testFormData.seniorGraduate?.graduationDate || testFormData.graduationDate || testFormData.school_graduation_date || serverPayload.school_graduation_date || '';
+      form.schoolName = testFormData.seniorGraduate?.schoolName || testFormData.schoolName || testFormData.school_name || serverPayload?.school_name || '';
+      form.schoolAddress = testFormData.seniorGraduate?.schoolAddress || testFormData.schoolAddress || testFormData.school_address || serverPayload?.school_address || '';
+      form.graduationDate = testFormData.seniorGraduate?.graduationDate || testFormData.graduationDate || testFormData.school_graduation_date || serverPayload?.school_graduation_date || '';
     } else if (isCollegeStudent) {
-      form.schoolName = testFormData.college?.schoolName || testFormData.schoolName || serverPayload.school_name || '';
-      form.schoolAddress = testFormData.college?.schoolAddress || testFormData.schoolAddress || testFormData.school_address || serverPayload.school_address || '';
-      form.course = testFormData.college?.course || testFormData.college_course || serverPayload.college_course || '';
-      form.collegeType = testFormData.college?.collegeType || testFormData.college_type || serverPayload.college_type || '';
+      form.schoolName = testFormData.college?.schoolName || testFormData.schoolName || testFormData.school_name || serverPayload?.school_name || '';
+      form.schoolAddress = testFormData.college?.schoolAddress || testFormData.schoolAddress || testFormData.school_address || serverPayload?.school_address || '';
+      form.course = testFormData.college?.course || testFormData.college_course || testFormData.college_course || serverPayload?.college_course || '';
+      form.collegeType = testFormData.college?.collegeType || testFormData.college_type || testFormData.college_type || serverPayload?.college_type || '';
     } else {
       // Fallback for unknown applicantType, use top-level fields if available
-      form.schoolName = testFormData.schoolName || serverPayload.school_name || '';
-      form.schoolAddress = testFormData.schoolAddress || testFormData.school_address || serverPayload.school_address || '';
-      form.graduationDate = testFormData.graduationDate || testFormData.school_graduation_date || serverPayload.school_graduation_date || '';
+      form.schoolName = testFormData.schoolName || testFormData.school_name || serverPayload?.school_name || '';
+      form.schoolAddress = testFormData.schoolAddress || testFormData.school_address || serverPayload?.school_address || '';
+      form.graduationDate = testFormData.graduationDate || testFormData.school_graduation_date || serverPayload?.school_graduation_date || '';
     }
 
     // Final global fallbacks if still empty
@@ -412,12 +435,19 @@ const loadFormData = () => {
       );
     }
 
-    // High School Code mapping
-    form.highSchoolCode = testFormData.highSchoolCode || '';
+    // High School Code mapping - be extremely robust
+    // Check all possible field names from both local and server data
+    form.highSchoolCode = testFormData.highSchoolCode || 
+                          testFormData.high_school_code || 
+                          serverPayload?.high_school_code || 
+                          appointmentInfo.high_school_code || 
+                          (testFormData.schoolInfo && testFormData.schoolInfo.high_school_code) ||
+                          '';
 
     if (props.outputPdfOnly) {
       console.log('[ApplicationForm outputPdfOnly] Populated form object (High School Code):',
-        'form.highSchoolCode:', form.highSchoolCode
+        'form.highSchoolCode:', form.highSchoolCode,
+        'Raw testFormData HS code:', testFormData.highSchoolCode || testFormData.high_school_code
       );
     }
   } catch (error) {
@@ -464,11 +494,16 @@ const downloadPDF = () => {
 }
 
 const printForm = () => window.print();
-const fetchTestDetails = async (id) => {
-  if (!id) return;
-  try {
-    const response = await axiosInstance.get(`/api/appointments/${id}/test-details/`);
+const fetchTestDetails = (id) => {
+  if (!id) {
+    console.warn('[ApplicationForm] fetchTestDetails called with no ID');
+    return Promise.resolve();
+  }
+  
+  console.log('[ApplicationForm] Fetching test details for ID:', id);
+  return axiosInstance.get(`/api/appointments/${id}/test-details/`).then(response => {
     const data = response.data;
+    console.log('[ApplicationForm] Test details received:', data);
     
     // Process test details - handle nested structure
     const testSession = data.test_session || (data.test_details && data.test_details.session);
@@ -481,11 +516,13 @@ const fetchTestDetails = async (id) => {
     }
     
     if (testCenter) {
+      console.log('[ApplicationForm] Mapping Test Center:', testCenter);
       appointmentInfo.test_center = testCenter.name || testCenter.center_name;
       appointmentInfo.test_center_code = testCenter.code || testCenter.id;
     }
     
     if (testRoom) {
+      console.log('[ApplicationForm] Mapping Test Room:', testRoom);
       // Logic for room_number (similar to AppointmentStatus.vue)
       if (testRoom.name && testRoom.room_code && testRoom.name !== testRoom.room_code && !testRoom.name.includes(`Room ${testRoom.room_code}`)) {
         appointmentInfo.room_number = testRoom.name;
@@ -499,10 +536,26 @@ const fetchTestDetails = async (id) => {
       appointmentInfo.room_code = testRoom.room_code;
     }
 
+    // Set high school code from appointment data - check multiple root-level and nested paths
+    const hsc = data.high_school_code || data.hsc || (data.test_details && data.test_details.high_school_code) || data.highSchoolCode;
+    if (hsc) {
+      console.log('[ApplicationForm] Setting high_school_code from API:', hsc);
+      appointmentInfo.high_school_code = hsc;
+      form.highSchoolCode = hsc;
+    } else {
+      console.warn('[ApplicationForm] No high_school_code found in API response. Current data:', data);
+      // Fallback to local data if available
+      if (appointmentInfo.high_school_code && appointmentInfo.high_school_code !== 'TO BE ASSIGNED') {
+        console.log('[ApplicationForm] Keeping existing high_school_code:', appointmentInfo.high_school_code);
+      }
+    }
+
+    // Explicitly update all related fields to ensure template re-renders
+    console.log('[ApplicationForm] Final appointmentInfo state after fetch:', JSON.parse(JSON.stringify(appointmentInfo)));
     appointmentInfo.forceUpdate = Date.now();
-  } catch (error) {
+  }).catch(error => {
     console.warn('Error fetching test details for ApplicationForm:', error);
-  }
+  });
 };
 const formatAppointmentDate = (dateString) => {
   if (!dateString) return ''; 
@@ -571,6 +624,20 @@ onMounted(async () => {
 
   if ((props.popupMode || props.outputPdfOnly) && props.appointmentData) {
     loadFormData();
+    
+    // Extract appointment ID correctly
+    const testFormData = props.appointmentData || ApplicationFormStore.state.formData || {};
+    const serverPayload = testFormData?.serverModel || testFormData?.serverResponse || {};
+    const appointmentId = testFormData?.id || serverPayload?.id || testFormData?.appointmentId;
+    
+    if (appointmentId) {
+      console.log('[ApplicationForm onMounted] Found appointmentId:', appointmentId);
+      await fetchTestDetails(appointmentId);
+      console.log('[ApplicationForm onMounted] After fetchTestDetails, appointmentInfo is:', 
+        JSON.parse(JSON.stringify(appointmentInfo)));
+    } else {
+      console.warn('[ApplicationForm onMounted] No appointmentId found in testFormData:', testFormData);
+    }
   } else if (!props.outputPdfOnly) { 
     const routeAppointmentId = route.params.appointmentId;
     if (routeAppointmentId) { /* ... */ }
@@ -596,6 +663,18 @@ watch(() => props.startDownload, async (newValue) => {
   }
     if (!form.name) { 
       loadFormData();
+    }
+    
+    // Ensure we have the latest test details before downloading
+    const testFormData = props.appointmentData || ApplicationFormStore.state.formData || {};
+    const serverPayload = testFormData?.serverModel || testFormData?.serverResponse || {};
+    const appointmentId = testFormData?.id || serverPayload?.id || testFormData?.appointmentId;
+    
+    if (appointmentId) {
+      console.log('[ApplicationForm startDownload] Fetching test details for ID:', appointmentId);
+      await fetchTestDetails(appointmentId);
+      // Extra tick to ensure reactive updates are rendered
+      await nextTick();
     }
     await nextTick(); 
     if (formContainer.value) {
@@ -797,11 +876,11 @@ watch(() => props.popupMode, (newVal) => {
 .field-college-address { left: 1.55in; top: 6.38in; width: 6.15in; }
 
 .field-test-date { left: 0.95in; top: 7.42in; width: 1.25in; text-align: center; }
-.field-test-center { left: 2.35in; top: 7.42in; width: 1.6in; text-align: center; }
+.field-test-center { left: 2.29in; top: 7.42in; width: 1.6in; text-align: center; }
 .field-room { left: 4.1in; top: 7.42in; width: 1.1in; text-align: center; }
-.field-time { left: 5.25in; top: 7.42in; width: 1.1in; text-align: center; }
+.field-time { left: 5.07in; top: 7.42in; width: 1.1in; text-align: center; }
 .field-center-code { left: 6.45in; top: 7.42in; width: 0.75in; text-align: center; }
-.field-hs-code { left: 7.25in; top: 7.42in; width: 0.85in; text-align: center; }
+.field-hs-code { left: 7.22in; top: 7.42in; width: 0.85in; text-align: center; }
 
 .photo-top { right: 0.25in; top: 0.55in; }
 
@@ -817,11 +896,11 @@ watch(() => props.popupMode, (newVal) => {
 .field-permit-school { left: 1.05in; top: 9.87in; width: 4.7in; }
 
 .field-permit-test-date { left: 1.15in; top: 10.95in; width: 1.2in; text-align: center; }
-.field-permit-test-center { left: 2.55in; top: 10.95in; width: 1.6in; text-align: center; }
+.field-permit-test-center { left: 2.49in; top: 10.95in; width: 1.6in; text-align: center; }
 .field-permit-room { left: 4.25in; top: 10.95in; width: 1.05in; text-align: center; }
-.field-permit-time { left: 5.35in; top: 10.95in; width: 1.1in; text-align: center; }
+.field-permit-time { left: 5.37in; top: 10.95in; width: 1.1in; text-align: center; }
 .field-permit-center-code { left: 6.52in; top: 10.95in; width: 0.75in; text-align: center; }
-.field-permit-hs-code { left: 7.32in; top: 10.95in; width: 0.85in; text-align: center; }
+.field-permit-hs-code { left: 7.29in; top: 10.95in; width: 0.85in; text-align: center; }
 
 .check-student-shs { left: 3.00in; top: 11.85in; }
 .check-student-shg { left: 3.00in; top: 12.05in; }

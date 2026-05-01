@@ -700,20 +700,30 @@ const fetchTestDetailsForAppointment = async (appointmentId) => {
       }
       
       // Store room code separately
-      appointment.value.room_code = testRoom.room_code
+      if (testRoom.room_code) {
+        appointment.value.room_code = testRoom.room_code
+      }
       
-      // Log the room details for debugging
-      console.log('Room details:', {
+      console.log('Room data processed:', {
         room_number: appointment.value.room_number,
-        room_code: appointment.value.room_code,
-        raw_room_data: testRoom
+        room_code: appointment.value.room_code
       })
+    }
+    
+    // Set other flat fields from serializer if available and not already set
+    if (!appointment.value.test_center && appointment.value.test_center_name) {
+      appointment.value.test_center = appointment.value.test_center_name
+    }
+    if (!appointment.value.test_center_code && appointment.value.test_center_code_val) { // Using different name to avoid collision
+       appointment.value.test_center_code = appointment.value.test_center_code_val
     }
     
     // Log the updated appointment
     console.log('Updated appointment with test details:', {
       test_center: appointment.value.test_center,
+      test_center_code: appointment.value.test_center_code,
       room_number: appointment.value.room_number,
+      room_code: appointment.value.room_code,
       status: appointment.value.status
     })
   } catch (err) {
@@ -893,11 +903,12 @@ const downloadApplicationForm = () => {
         preferredDate: appointment.value.preferred_date,
         timeSlot: getEffectiveTimeSlot(),
         appointmentId: appointment.value.id,
-        test_date: appointment.value.test_date,
-        test_center: appointment.value.test_center,
-        test_center_code: appointment.value.test_center_code,
-        room_number: appointment.value.room_number,
-        room_code: appointment.value.room_code,
+        test_date: appointment.value.test_session_date || appointment.value.test_date,
+        test_center: appointment.value.test_center_name || appointment.value.test_center,
+        test_center_code: appointment.value.test_center_code || appointment.value.test_center_code_val,
+        room_number: appointment.value.test_room_name || appointment.value.room_number,
+        room_code: appointment.value.test_room_code || appointment.value.room_code,
+        time_slot: getEffectiveTimeSlot(),
         test_session_exam_date: appointment.value.test_session_exam_date,
         
         // Applicant type and school info structure

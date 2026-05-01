@@ -12,7 +12,9 @@ class ProgramSerializer(serializers.ModelSerializer):
 class AppointmentSerializer(serializers.ModelSerializer):
     program_name = serializers.CharField(source='program.name', read_only=True)
     test_center_name = serializers.CharField(source='test_center.name', read_only=True)
+    test_center_code = serializers.CharField(source='test_center.code', read_only=True)
     test_room_name = serializers.CharField(source='test_room.name', read_only=True)
+    test_room_code = serializers.CharField(source='test_room.room_code', read_only=True)
     test_session_date = serializers.DateField(source='test_session.exam_date', read_only=True)
     
     # Add test session details for frontend display
@@ -33,8 +35,8 @@ class AppointmentSerializer(serializers.ModelSerializer):
             'gender', 'age', 'home_address', 'citizenship', 'is_first_time',
             'times_taken', 'applicant_type', 'high_school_code', 'school_graduation_date',
             'school_address', 'college_course', 'college_type', 'is_submitted',
-            'test_session', 'test_center', 'test_room', 'test_center_name',
-            'test_room_name', 'test_session_date', 'assigned_test_time_slot', 'is_time_slot_modified',
+            'test_session', 'test_center', 'test_room', 'test_center_name', 'test_center_code',
+            'test_room_name', 'test_room_code', 'test_session_date', 'assigned_test_time_slot', 'is_time_slot_modified',
             'exam_date', 'exam_score',
             # Test session details for registration schedule display
             'test_session_name', 'test_session_exam_date', 'test_session_registration_start',
